@@ -20,6 +20,13 @@ npm-debug.log*
 .idea/
 *.suo
 *.ntvs*
+
+# AI Tracking / Internal
+AGENT.md
+INTENT.md
+MEMORY.md
+ROADMAP.md
+TRD.md
 *.njsproj
 *.sln
 *.sw?
