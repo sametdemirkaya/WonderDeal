@@ -5,8 +5,11 @@ __pycache__/
 backend/venv/
 .env
 
-# Data Pipeline (Sadece veri klasöründeki gereksiz ara dosyalar için, ana CSV'leri yükleyebiliriz)
-# data_pipeline/*.csv
+# Data Pipeline (Sadece gerekli Python kodları ve temiz ana veriyi tut, gerisini gizle)
+data_pipeline/*
+!data_pipeline/*.py
+!data_pipeline/requirements.txt
+!data_pipeline/temizlenmis_24_25.csv
 
 # Node / Frontend
 frontend/node_modules/
