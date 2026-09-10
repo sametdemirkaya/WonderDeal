@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/venv/
+.env
+
+# Data Pipeline (Sadece veri klasöründeki gereksiz ara dosyalar için, ana CSV'leri yükleyebiliriz)
+# data_pipeline/*.csv
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+.npm
+npm-debug.log*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
