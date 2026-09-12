@@ -21,6 +21,10 @@ export const useScoutStore = create(
 
       // Filters State
       filters: {
+        season: '25-26', // Tekli seçim için varsayılan sezon
+        min_market_value: 0,
+        max_market_value: 200000000,
+        include_unknown_value: true,
         min_similarity: 50,
         max_distance: 15,
         age_min: 15,
@@ -47,8 +51,11 @@ export const useScoutStore = create(
       clearPlayerSelection: () => set({ selectedPlayersForCompare: [] }),
 
       // Compare Results State
-      compareResults: [],
+      compareResults: null,
       setCompareResults: (results) => set({ compareResults: results }),
+      
+      lastCompareParams: null,
+      setLastCompareParams: (params) => set({ lastCompareParams: params }),
       
       isComparing: false,
       setIsComparing: (status) => set({ isComparing: status }),

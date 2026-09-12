@@ -51,16 +51,34 @@ class PlayerMatch(BaseModel):
     
     # İsteğe bağlı eklenecekler (Boy, yaş, piyasa değeri)
     age: Optional[float] = None
+    height: Optional[float] = None
+    foot: Optional[str] = None
+    contract_until: Optional[str] = None
     market_value: Optional[float] = None
     raw_stats: Dict[str, float] = {}
-
+    similarity_drivers: List[str] = []
+    
 class CompareResponse(BaseModel):
     target_player_id: int
     target_player_name: str
+    target_team: str = "Unknown"
     target_season: str
+    target_age: Optional[float] = None
+    target_market_value: Optional[float] = None
+    target_market_value_currency: Optional[str] = None
     target_pc_values: List[float]
     target_raw_stats: Dict[str, float] = {}
     matches: List[PlayerMatch]
+
+import re
+
+def format_feature_name(name: str) -> str:
+    """CamelCase veya düz kelimeleri kullanıcı dostu hale getirir."""
+    # Araya boşluk koy
+    name = re.sub(r'(?<!^)(?=[A-Z])', ' ', name)
+    name = name.title()
+    name = name.replace('Percentage', '%')
+    return name
 
 # --- Ön İşleme (Sizin 41 Hücrelik Kodunuzun FastAPI Versiyonu) ---
 def preprocess_for_position(df_pos: pd.DataFrame) -> pd.DataFrame:
@@ -238,14 +256,40 @@ def read_root():
     return {"message": "WonderDeal API Ayakta!"}
 
 @app.get("/api/search", response_model=List[SearchResponseItem])
-def search_players(q: str):
-    """Oyuncuları isme göre arar."""
+def search_players(
+    q: str, 
+    season: Optional[str] = "25-26",
+    min_market_value: Optional[float] = None,
+    max_market_value: Optional[float] = None,
+    include_unknown_value: Optional[bool] = True
+):
+    """Oyuncuları isme göre arar ve filtrelere göre daraltır."""
     if not q or len(q) < 2 or app_data['raw_df'].empty:
         return []
         
     q_lower = normalize_string(q)
-    # Aynı oyuncunun iki sezonu varsa ikisini de getirir
+    
+    # 1. İsme göre filtrele
     matches = app_data['raw_df'][app_data['raw_df']['player_normalized'].str.contains(q_lower, na=False)]
+    
+    # 2. Sezon filtresi (Tekli seçim)
+    if season and season != "All":
+        matches = matches[matches['season'] == season]
+        
+    # 3. Market Value filtresi
+    if (min_market_value is not None or max_market_value is not None) and not matches.empty:
+        def mv_filter(row):
+            val = row.get('market_value')
+            if pd.isna(val) or val is None:
+                return include_unknown_value
+            val = float(val)
+            if min_market_value is not None and val < min_market_value:
+                return False
+            if max_market_value is not None and val > max_market_value:
+                return False
+            return True
+        
+        matches = matches[matches.apply(mv_filter, axis=1)]
     
     results = []
     for _, row in matches.head(20).iterrows():
@@ -283,7 +327,17 @@ def get_raw_stats(raw_row: pd.Series, pos: str) -> dict:
     return result
 
 @app.get("/api/compare", response_model=CompareResponse)
-def compare_players(target_player_id: int, target_season: str, min_minutes: int = 500, target_compare_season: Optional[str] = None):
+def compare_players(
+    target_player_id: int, 
+    target_season: str, 
+    min_minutes: int = 500, 
+    season: Optional[str] = "25-26",
+    min_market_value: Optional[float] = None,
+    max_market_value: Optional[float] = None,
+    include_unknown_value: Optional[bool] = True,
+    age_min: Optional[int] = 15,
+    age_max: Optional[int] = 40
+):
     """Hedef oyuncuya benzeyenleri bulur (Kosinüs Benzerliği)"""
     df_raw = app_data['raw_df']
     if df_raw.empty:
@@ -327,16 +381,35 @@ def compare_players(target_player_id: int, target_season: str, min_minutes: int 
         if p_id == target_player_id and p_season == target_season:
             continue
             
-        # Kullanıcı sadece 25-26 ile kıyasla dediyse
-        if target_compare_season and p_season != target_compare_season:
+        # Kullanıcı sadece tek bir sezon ile kıyasla dediyse (varsayılan: 25-26)
+        if season and season != "All" and p_season != season:
             continue
             
         # Dakika filtresi (Orijinal tablodan bak)
         # Optimizasyon: Büyük verilerde bu döngü yavaşlayabilir, ancak 3000 oyuncu için anlık çalışır.
         raw_row = df_raw[(df_raw['player id'] == p_id) & (df_raw['season'] == p_season)].iloc[0]
-        if raw_row['minutesPlayed'] < min_minutes:
+        if raw_row.get('minutesPlayed', 0) < min_minutes:
             continue
             
+        # Yaş filtresi
+        player_age = raw_row.get('age')
+        if not pd.isna(player_age) and player_age is not None:
+            if player_age < age_min or player_age > age_max:
+                continue
+                
+        # Market Value filtresi
+        if min_market_value is not None or max_market_value is not None:
+            mv_val = raw_row.get('market_value')
+            if pd.isna(mv_val) or mv_val is None:
+                if not include_unknown_value:
+                    continue
+            else:
+                mv_val = float(mv_val)
+                if min_market_value is not None and mv_val < min_market_value:
+                    continue
+                if max_market_value is not None and mv_val > max_market_value:
+                    continue
+                    
         filtered_indices.append(idx)
         
     if not filtered_indices:
@@ -351,7 +424,13 @@ def compare_players(target_player_id: int, target_season: str, min_minutes: int 
     euclid_matrix = euclidean_distances(target_vector, df_pca_filtered.values)[0]
     
     # Sıralama (Kosinüs benzerliği en yüksek olan en iyi)
-    best_matches_idx = np.argsort(cos_sim_matrix)[::-1][:100] # İlk 100
+    best_matches_idx = np.argsort(cos_sim_matrix)[::-1][:500] # İlk 500
+    
+    # Benzerlik sürücüleri için matrisler
+    pca_model = app_data['models']['pca'][pos]
+    pt_model = app_data['models']['pt'][pos]
+    V_squared = np.square(pca_model.components_)
+    feature_names = pt_model.feature_names_in_
     
     matches = []
     for i in best_matches_idx:
@@ -359,6 +438,15 @@ def compare_players(target_player_id: int, target_season: str, min_minutes: int 
         p_id, p_name, t_name, t_id, p_pos, p_season = match_index
         
         raw_row = df_raw[(df_raw['player id'] == p_id) & (df_raw['season'] == p_season)].iloc[0]
+        
+        # Benzerlik Vektörü (W) ve Özellik Skorları hesaplama
+        match_vector = df_pca_filtered.values[i]
+        W = target_vector[0] * match_vector
+        feature_scores = W @ V_squared
+        
+        # En iyi 10 özelliği al
+        top_indices = np.argsort(feature_scores)[::-1][:10]
+        top_features = [format_feature_name(feature_names[idx]) for idx in top_indices]
         
         matches.append(PlayerMatch(
             player_id=p_id,
@@ -369,15 +457,23 @@ def compare_players(target_player_id: int, target_season: str, min_minutes: int 
             cosine_similarity=round(float(cos_sim_matrix[i]) * 100, 2),
             euclidean_distance=round(float(euclid_matrix[i]), 2),
             pc_values=df_pca_filtered.values[i].tolist(),
-            age=raw_row.get('age', None),
-            market_value=raw_row.get('market_value', None),
-            raw_stats=get_raw_stats(raw_row, pos)
+            age=raw_row.get('age', None) if not pd.isna(raw_row.get('age', None)) else None,
+            height=raw_row.get('height', None) if not pd.isna(raw_row.get('height', None)) else None,
+            foot=raw_row.get('foot', None) if not pd.isna(raw_row.get('foot', None)) else None,
+            contract_until=raw_row.get('contract_until', None) if not pd.isna(raw_row.get('contract_until', None)) else None,
+            market_value=raw_row.get('market_value', None) if not pd.isna(raw_row.get('market_value', None)) else None,
+            raw_stats=get_raw_stats(raw_row, pos),
+            similarity_drivers=top_features
         ))
         
     return CompareResponse(
         target_player_id=target_player_id,
         target_player_name=target_name,
+        target_team=target_row['team'],
         target_season=target_season,
+        target_age=target_row.get('age', None) if not pd.isna(target_row.get('age', None)) else None,
+        target_market_value=target_row.get('market_value', None) if not pd.isna(target_row.get('market_value', None)) else None,
+        target_market_value_currency=target_row.get('market_value_currency', None) if not pd.isna(target_row.get('market_value_currency', None)) else None,
         target_pc_values=target_pc_values,
         target_raw_stats=target_raw_stats,
         matches=matches

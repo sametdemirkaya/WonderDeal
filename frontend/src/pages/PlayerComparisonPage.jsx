@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { ArrowLeft, Target, Activity, MapPin, Calendar, Clock, Trophy, Bookmark, BookmarkCheck } from 'lucide-react';
 import PositionStatsChart from '../components/PositionStatsChart';
+import PageTransition from '../components/PageTransition';
 
 const PlayerComparisonPage = () => {
   const { compareResults, addToShortlist, removeFromShortlist, isInShortlist } = useScoutStore();
@@ -58,7 +59,7 @@ const PlayerComparisonPage = () => {
   const matchColors = ["#00ff87", "#ff007f", "#00ffff", "#ffe600"]; // Neon Green, Hot Pink, Cyan, Bright Yellow
 
   return (
-    <div className="flex flex-col w-full px-space-xl pb-space-2xl gap-space-lg text-on-surface animate-slide-up-fade">
+    <PageTransition className="flex flex-col w-full px-space-xl pb-32 text-on-surface max-w-7xl mx-auto">
       
       {/* Header */}
       <section className="flex flex-col md:flex-row md:items-end justify-between gap-space-md pt-space-md">
@@ -90,8 +91,10 @@ const PlayerComparisonPage = () => {
               <Target className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <span className="text-primary font-label-caps text-[10px] tracking-widest uppercase bg-primary/10 px-2 py-0.5 rounded-sm mb-1 inline-block">Target Profile</span>
-              <h2 className="text-xl font-bold font-headline-md leading-none">{targetData.target_player}</h2>
+              <h2 className="text-xl font-bold font-headline-md leading-none flex items-center gap-2">
+                {targetData.target_player_name} 
+                <span className="text-xs font-bold bg-primary text-on-primary px-1.5 py-0.5 rounded uppercase">{targetData.target_season}</span>
+              </h2>
             </div>
           </div>
 
@@ -152,8 +155,11 @@ const PlayerComparisonPage = () => {
               <div className="w-20 h-20 bg-surface-container-high rounded-full border-4 flex items-center justify-center mb-4 mt-2" style={{ borderColor: color }}>
                 <Activity className="w-8 h-8" style={{ color: color }} />
               </div>
-              <h2 className="text-xl font-bold font-headline-md text-center">{matchPlayer.player_name}</h2>
-              <span className="font-label-caps text-xs tracking-widest uppercase mb-4 px-3 py-1 rounded-full bg-surface-container-high" style={{ color: color }}>
+              <h2 className="text-xl font-bold font-headline-md text-center flex flex-col items-center gap-1">
+                {matchPlayer.player_name}
+                <span className="text-xs font-bold bg-secondary/20 text-secondary px-2 py-0.5 rounded uppercase">{matchPlayer.season}</span>
+              </h2>
+              <span className="font-label-caps text-xs tracking-widest uppercase mb-4 mt-2 px-3 py-1 rounded-full bg-surface-container-high" style={{ color: color }}>
                 Similarity: {matchPlayer.cosine_similarity}%
               </span>
               
@@ -181,7 +187,7 @@ const PlayerComparisonPage = () => {
         })}
       </div>
 
-    </div>
+    </PageTransition>
   );
 };
 

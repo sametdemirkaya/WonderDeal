@@ -4,6 +4,7 @@ import { useScoutStore } from '../store/useScoutStore';
 import { Bookmark, Trash2, ArrowRight, ChevronDown, ChevronUp, Target, Loader2 } from 'lucide-react';
 import { getSimilarityColor, getDistanceColor } from '../utils/colorUtils';
 import { comparePlayers } from '../api';
+import PageTransition from '../components/PageTransition';
 
 const ShortlistPage = () => {
   const { shortlist, removeFromShortlist, setCompareResults, setTargetPlayer } = useScoutStore();
@@ -72,7 +73,7 @@ const ShortlistPage = () => {
   };
 
   return (
-    <div className="flex flex-col w-full px-space-xl pb-space-2xl gap-space-lg text-on-surface animate-slide-up-fade">
+    <PageTransition className="flex flex-col w-full px-space-xl pb-space-2xl gap-space-lg text-on-surface">
       
       {/* Header */}
       <section className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md pt-space-md mb-4">
@@ -196,7 +197,7 @@ const ShortlistPage = () => {
           })}
         </div>
       )}
-    </div>
+    </PageTransition>
   );
 };
 

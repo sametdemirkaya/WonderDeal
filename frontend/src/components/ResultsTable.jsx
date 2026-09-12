@@ -72,7 +72,10 @@ const ResultsTable = ({ results, onRowClick, sortConfig, requestSort }) => {
                       {player.player_name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-semibold text-on-surface">{player.player_name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold text-on-surface">{player.player_name}</p>
+                        <span className="text-[10px] font-bold bg-primary/20 text-primary px-1.5 py-0.5 rounded uppercase">{player.season}</span>
+                      </div>
                       <p className="text-xs text-on-surface-variant">{player.nationality}</p>
                     </div>
                   </div>

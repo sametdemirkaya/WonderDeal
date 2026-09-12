@@ -5,6 +5,27 @@ import { searchPlayers, comparePlayers } from '../api';
 import { Search, Loader2, Target, SlidersHorizontal, ArrowRight, X, User } from 'lucide-react';
 import ResultsTable from '../components/ResultsTable';
 import PlayerSlideOver from '../components/PlayerSlideOver';
+import FilterDrawer from '../components/FilterDrawer';
+import SeasonToggle from '../components/SeasonToggle';
+import PageTransition from '../components/PageTransition';
+
+const parseMV = (val) => {
+  if (!val) return 0;
+  if (typeof val === 'number') return val;
+  const str = val.toString().toUpperCase().trim();
+  let num = parseFloat(str.replace(/[^0-9.]/g, ''));
+  if (isNaN(num)) return 0;
+  if (str.endsWith('M')) num *= 1000000;
+  else if (str.endsWith('K')) num *= 1000;
+  return num;
+};
+
+const formatMV = (val) => {
+  if (val === 0 || !val) return '';
+  if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+  if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
+  return val.toString();
+};
 
 const ScoutPage = () => {
   const {
@@ -14,6 +35,7 @@ const ScoutPage = () => {
     targetPlayer, setTargetPlayer, clearTargetPlayer,
     filters, setFilters,
     compareResults, setCompareResults,
+    lastCompareParams, setLastCompareParams,
     isComparing, setIsComparing,
     selectedPlayersForCompare, clearPlayerSelection
   } = useScoutStore();
@@ -28,12 +50,19 @@ const ScoutPage = () => {
   // Sorting state: default to DNA Similarity (cosine_similarity) descending
   const [sortConfig, setSortConfig] = useState({ key: 'cosine_similarity', direction: 'desc' });
 
+  // Filter Drawer State
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+
+  // Local state for Target Player Search
+  const [searchSeason, setSearchSeason] = useState('25-26');
+
   // Debounced search
   useEffect(() => {
     const handler = setTimeout(async () => {
       if (searchQuery.length >= 2) {
         setSearchLoading(true);
-        const results = await searchPlayers(searchQuery);
+        // Hedef oyuncu aramasında sadece sezon filtresi uygulanmalı
+        const results = await searchPlayers(searchQuery, { season: searchSeason });
         setSearchResults(results);
         setSearchLoading(false);
       } else {
@@ -41,7 +70,12 @@ const ScoutPage = () => {
       }
     }, 500);
     return () => clearTimeout(handler);
-  }, [searchQuery, setSearchLoading, setSearchResults]);
+  }, [
+    searchQuery, 
+    setSearchLoading, 
+    setSearchResults,
+    searchSeason
+  ]);
 
   const handleSelectPlayer = (player) => {
     const primaryPos = player.position_group.split(',')[0].trim();
@@ -53,14 +87,28 @@ const ScoutPage = () => {
 
   const handleCompare = async () => {
     if (!targetPlayer) return;
+    
+    const currentParams = {
+      target_player_id: targetPlayer.player_id,
+      target_season: targetPlayer.season,
+      min_minutes: filters.min_minutes,
+      season: filters.season,
+      min_market_value: filters.min_market_value,
+      max_market_value: filters.max_market_value,
+      age_min: filters.age_min,
+      age_max: filters.age_max
+    };
+
+    // Eğer parametreler değişmediyse ve elimizde zaten sonuç varsa, API'ye tekrar gitme
+    if (lastCompareParams && JSON.stringify(lastCompareParams) === JSON.stringify(currentParams) && compareResults) {
+      return;
+    }
+
     setIsComparing(true);
     try {
-      const results = await comparePlayers({
-        target_player_id: targetPlayer.player_id,
-        target_season: targetPlayer.season,
-        min_minutes: filters.min_minutes
-      });
+      const results = await comparePlayers(currentParams);
       setCompareResults(results);
+      setLastCompareParams(currentParams);
       setCurrentPage(1);
     } catch (error) {
       console.error("Comparison failed");
@@ -78,7 +126,15 @@ const ScoutPage = () => {
     }, 800); // 800ms debounce to prevent spamming while typing age/minutes
     
     return () => clearTimeout(handler);
-  }, [targetPlayer, filters.age_min, filters.age_max, filters.min_minutes]);
+  }, [
+    targetPlayer, 
+    filters.age_min, 
+    filters.age_max, 
+    filters.min_minutes,
+    filters.season,
+    filters.min_market_value,
+    filters.max_market_value
+  ]);
 
   // Reset selection when new target is picked
   useEffect(() => {
@@ -148,7 +204,7 @@ const ScoutPage = () => {
   };
 
   return (
-    <div className="flex flex-col w-full px-space-xl pb-32 gap-space-lg text-on-surface animate-slide-up-fade">
+    <PageTransition className="flex flex-col w-full px-space-xl pb-32 gap-space-lg text-on-surface">
       <section className="flex flex-col gap-1 pt-space-sm pb-space-sm">
         <h1 className="text-5xl font-black text-on-surface tracking-tight">Player Scout</h1>
         <p className="text-on-surface-variant font-body-lg max-w-2xl mt-2">
@@ -180,20 +236,32 @@ const ScoutPage = () => {
               </button>
             </div>
         ) : (
-          <div className="relative">
-            <div className="flex items-center bg-surface rounded-lg p-2 border border-outline-variant/50 focus-within:border-primary/60 transition-colors">
-              <Search className="w-5 h-5 text-outline mx-2" />
-              <input
-                type="text"
-                placeholder="Search a player (e.g., Trent Alexander-Arnold)..."
-                className="w-full bg-transparent border-0 text-on-surface placeholder-outline focus:ring-0 focus:outline-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-center mt-2">
+              <SeasonToggle 
+                options={[
+                  { label: 'Tüm Sezonlar', value: 'All' },
+                  { label: '25-26', value: '25-26' },
+                  { label: '24-25', value: '24-25' }
+                ]}
+                selected={searchSeason}
+                onChange={setSearchSeason}
               />
-              {searchLoading && <Loader2 className="w-5 h-5 text-primary animate-spin mr-2" />}
             </div>
-            
-            {/* Search Dropdown */}
+            <div className="relative">
+              <div className="flex items-center bg-surface rounded-lg p-2 border border-outline-variant/50 focus-within:border-primary/60 transition-colors">
+                <Search className="w-5 h-5 text-outline mx-2" />
+                <input
+                  type="text"
+                  placeholder="Search a player (e.g., Trent Alexander-Arnold)..."
+                  className="w-full bg-transparent border-0 text-on-surface placeholder-outline focus:ring-0 focus:outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchLoading && <Loader2 className="w-5 h-5 text-primary animate-spin mr-2" />}
+              </div>
+              
+              {/* Search Dropdown */}
             {searchResults.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-high border border-outline-variant/50 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
                 {searchResults.map((p, i) => (
@@ -209,96 +277,11 @@ const ScoutPage = () => {
               </div>
             )}
           </div>
+        </div>
         )}
         </div>
       </section>
 
-      {/* Advanced Filters */}
-      {targetPlayer && (
-        <section className="bg-surface-container-low rounded-xl border border-outline-variant/30 p-space-sm shadow-sm mt-space-2xs">
-          <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5">
-            <SlidersHorizontal className="w-4 h-4 text-outline" /> Analysis Filters
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
-            
-            {/* 1. Min Similarity */}
-            <div className="bg-surface px-3 py-2 rounded-lg border border-outline-variant/30 flex flex-col justify-center">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold">Min DNA Similarity</label>
-                <span className="font-data-metric-sm font-bold text-primary text-sm">{filters.min_similarity}%</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" max="100" 
-                value={filters.min_similarity}
-                onChange={(e) => {
-                  setFilters({ min_similarity: parseInt(e.target.value) });
-                  setCurrentPage(1);
-                }}
-                className="w-full accent-primary h-1.5"
-              />
-            </div>
-
-            {/* 2. Max Euclidean Distance */}
-            <div className="bg-surface px-3 py-2 rounded-lg border border-outline-variant/30 flex flex-col justify-center">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold">Max Quality Diff</label>
-                <span className="font-data-metric-sm font-bold text-error text-sm">{filters.max_distance}</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" max="30" step="0.5"
-                value={filters.max_distance}
-                onChange={(e) => {
-                  setFilters({ max_distance: parseFloat(e.target.value) });
-                  setCurrentPage(1);
-                }}
-                className="w-full accent-error h-1.5"
-              />
-              <span className="text-[10px] text-outline mt-1 text-center font-label-caps">Önerilen: 15 altı</span>
-            </div>
-
-            {/* 3. Age Range */}
-            <div className="bg-surface px-3 py-2 rounded-lg border border-outline-variant/30 flex flex-col justify-center">
-              <label className="text-xs font-semibold mb-1 block">Age Range</label>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="number" 
-                  value={filters.age_min}
-                  onChange={(e) => setFilters({ age_min: parseInt(e.target.value) || 15 })}
-                  className="w-full bg-surface-container border border-outline-variant/50 rounded p-1 text-xs text-center focus:outline-none focus:border-primary transition-colors h-6"
-                  placeholder="Min"
-                />
-                <span className="text-outline text-xs">-</span>
-                <input 
-                  type="number" 
-                  value={filters.age_max}
-                  onChange={(e) => setFilters({ age_max: parseInt(e.target.value) || 40 })}
-                  className="w-full bg-surface-container border border-outline-variant/50 rounded p-1 text-xs text-center focus:outline-none focus:border-primary transition-colors h-6"
-                  placeholder="Max"
-                />
-              </div>
-            </div>
-
-            {/* 4. Min Minutes */}
-            <div className="bg-surface px-3 py-2 rounded-lg border border-outline-variant/30 flex flex-col justify-center">
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-semibold">Min Minutes</label>
-                <span className="font-data-metric-sm font-bold text-on-surface text-sm">{filters.min_minutes}</span>
-              </div>
-              <input 
-                type="range" 
-                min="0" max="3000" step="100"
-                value={filters.min_minutes}
-                onChange={(e) => setFilters({ min_minutes: parseInt(e.target.value) })}
-                className="w-full accent-outline h-1.5"
-              />
-            </div>
-
-          </div>
-        </section>
-      )}
-      
       {/* Loading State */}
       {isComparing && (
         <div className="flex flex-col items-center justify-center p-12 text-outline">
@@ -309,14 +292,33 @@ const ScoutPage = () => {
 
       {/* Results Section */}
       {!isComparing && compareResults?.matches && (
-        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500 mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold font-headline-md">Analysis Results</h2>
-            <span className="text-sm text-on-surface-variant font-body-sm">
-              Showing {filteredMatches.length} matches
-            </span>
+            <div>
+              <h2 className="text-xl font-bold font-headline-md text-white">Analysis Results</h2>
+              <span className="text-sm text-on-surface-variant font-body-sm">
+                Showing {filteredMatches.length} matches
+              </span>
+            </div>
+            <button 
+              onClick={() => setIsFilterDrawerOpen(true)}
+              className="px-4 py-2 bg-surface-card border border-border-subtle rounded-xl text-sm font-semibold text-white hover:bg-surface-variant transition-colors flex items-center gap-2 shadow-sm"
+            >
+              <SlidersHorizontal className="w-4 h-4 text-primary-blue" />
+              Gelişmiş Filtreler
+            </button>
           </div>
           
+          <FilterDrawer 
+            isOpen={isFilterDrawerOpen}
+            onClose={() => setIsFilterDrawerOpen(false)}
+            filters={filters}
+            setFilters={setFilters}
+            onApply={() => {
+              setCurrentPage(1);
+            }}
+          />
+
           <ResultsTable 
             results={paginatedMatches} 
             sortConfig={sortConfig}
@@ -418,7 +420,7 @@ const ScoutPage = () => {
         targetData={compareResults}
       />
 
-    </div>
+    </PageTransition>
   );
 };
 

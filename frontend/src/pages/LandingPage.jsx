@@ -2,27 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScoutStore } from '../store/useScoutStore';
 import { searchPlayers } from '../api';
+import SeasonToggle from '../components/SeasonToggle';
 import { Search, ArrowRight, Network, Database, SlidersHorizontal, UserSearch, Target, FileCheck } from 'lucide-react';
+import PageTransition from '../components/PageTransition';
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const { setTargetPlayer, setFilters } = useScoutStore();
   
   const [localQuery, setLocalQuery] = useState('');
+  const [localSeason, setLocalSeason] = useState('25-26');
   const [localResults, setLocalResults] = useState([]);
 
   // Debounced live search
   useEffect(() => {
     const handler = setTimeout(async () => {
       if (localQuery.length >= 2) {
-        const results = await searchPlayers(localQuery);
+        // Hedef oyuncu araması için sadece sezonu filtrele (piyasa değeri vb. yok)
+        const results = await searchPlayers(localQuery, { season: localSeason });
         setLocalResults(results);
       } else {
         setLocalResults([]);
       }
     }, 400);
     return () => clearTimeout(handler);
-  }, [localQuery]);
+  }, [localQuery, localSeason]);
 
   const handleSelectPlayer = (player) => {
     const primaryPos = player.position_group.split(',')[0].trim();
@@ -41,7 +45,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="bg-surface text-text-main antialiased selection:bg-primary-blue/30 selection:text-white min-h-screen relative">
+    <PageTransition className="bg-surface text-text-main antialiased selection:bg-primary-blue/30 selection:text-white min-h-screen relative">
       {/* Ambient Background Accents */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1100px] h-[500px] bg-gradient-to-b from-[#2F80ED]/15 via-[#2F80ED]/5 to-transparent blur-[140px]"></div>
@@ -87,8 +91,21 @@ const LandingPage = () => {
               Veri bilimi ve taktiksel benzerlik algoritmalarıyla kulübünüzün oyun felsefesine en uygun potansiyelleri ve benzer profilleri saniyeler içinde keşfedin.
             </p>
 
+            {/* Season Toggle placed right above Search */}
+            <div className="flex justify-center mt-10 mb-6">
+              <SeasonToggle 
+                options={[
+                  { label: 'Tüm Sezonlar', value: 'All' },
+                  { label: '25-26', value: '25-26' },
+                  { label: '24-25', value: '24-25' }
+                ]}
+                selected={localSeason}
+                onChange={setLocalSeason}
+              />
+            </div>
+
             {/* Search Bar Component with AutoComplete */}
-            <div className="w-full max-w-2xl mt-10 relative">
+            <div className="w-full max-w-2xl relative">
               <form 
                 className="relative flex items-center bg-surface-card/90 rounded-2xl p-2 border border-border-subtle shadow-2xl backdrop-blur-md focus-within:border-primary-blue/60 transition-all" 
                 onSubmit={handleFormSubmit}
@@ -351,7 +368,7 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
-    </div>
+    </PageTransition>
   );
 };
 

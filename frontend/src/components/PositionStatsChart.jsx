@@ -18,7 +18,26 @@ const statLabels = {
   interceptions: "Interceptions",
   clearances: "Clearances",
   aerialDuelsWonPercentage: "Aerial Won %",
+  aerialDuelsWonPercentage: "Aerial Won %",
   groundDuelsWonPercentage: "Ground Won %"
+};
+
+const defaultMaxes = {
+  goals: 1.0,
+  assists: 0.8,
+  expectedGoals: 1.0,
+  shotsOnTarget: 3.5,
+  bigChancesCreated: 1.5,
+  successfulDribbles: 5.0,
+  touches: 100,
+  accuratePassesPercentage: 100,
+  keyPasses: 3.5,
+  ballRecovery: 12.0,
+  tackles: 5.0,
+  interceptions: 4.0,
+  clearances: 8.0,
+  aerialDuelsWonPercentage: 100,
+  groundDuelsWonPercentage: 100
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -47,12 +66,19 @@ const PositionStatsChart = ({ targetStats, targetName, matchPlayers = [], colors
   const data = Object.keys(targetStats).map(key => {
     const tVal = targetStats[key] || 0;
     
-    // Find the absolute maximum across target and all match players for normalization
     let maxVal = tVal;
-    matchPlayers.forEach(mp => {
-      const mVal = mp.raw_stats?.[key] || 0;
-      if (mVal > maxVal) maxVal = mVal;
-    });
+
+    // If there are no match players, fallback to default reasonable maxes for a position so it doesn't just form a 100% hexagon
+    if (matchPlayers.length === 0) {
+      maxVal = defaultMaxes[key] || Math.max(tVal, 10);
+      if (tVal > maxVal) maxVal = tVal;
+    } else {
+      // Find the absolute maximum across target and all match players for normalization
+      matchPlayers.forEach(mp => {
+        const mVal = mp.raw_stats?.[key] || 0;
+        if (mVal > maxVal) maxVal = mVal;
+      });
+    }
     
     const divisor = maxVal > 0 ? maxVal : 1;
 
@@ -74,7 +100,7 @@ const PositionStatsChart = ({ targetStats, targetName, matchPlayers = [], colors
   return (
     <div className="w-full h-80 flex flex-col items-center">
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
+        <RadarChart cx="50%" cy="50%" outerRadius="85%" data={data}>
           <PolarGrid stroke="#3f3f46" />
           <PolarAngleAxis 
             dataKey="stat" 

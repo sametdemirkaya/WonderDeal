@@ -1,16 +1,18 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import Layout from './components/Layout';
 import ScoutPage from './pages/ScoutPage';
-
 import LandingPage from './pages/LandingPage';
 import PlayerComparisonPage from './pages/PlayerComparisonPage';
 import ShortlistPage from './pages/ShortlistPage';
 
-function App() {
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
   return (
-    <BrowserRouter>
-      <Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         <Route path="/" element={<LandingPage />} />
         <Route element={<Layout />}>
           <Route path="/scout" element={<ScoutPage />} />
@@ -18,6 +20,14 @@ function App() {
           <Route path="/shortlist" element={<ShortlistPage />} />
         </Route>
       </Routes>
+    </AnimatePresence>
+  );
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AnimatedRoutes />
     </BrowserRouter>
   );
 }
