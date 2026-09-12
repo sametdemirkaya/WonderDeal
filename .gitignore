@@ -10,6 +10,7 @@ data_pipeline/*
 !data_pipeline/*.py
 !data_pipeline/requirements.txt
 !data_pipeline/temizlenmis_24_25.csv
+!data_pipeline/temizlenmis_25_26.csv
 
 # Node / Frontend
 frontend/node_modules/
