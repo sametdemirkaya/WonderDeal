@@ -42,6 +42,20 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             {!isCollapsed && <span className="truncate">Scout</span>}
           </NavLink>
           <NavLink 
+            to="/h2h" 
+            title="Compare (1v1)"
+            className={({ isActive }) => 
+              `relative flex items-center ${isCollapsed ? 'justify-center p-3' : 'gap-space-sm px-space-md py-space-sm'} rounded-lg transition-all font-display font-medium text-base ${
+                isActive 
+                  ? "bg-secondary-container text-on-surface font-semibold before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-container before:rounded-r" 
+                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+              }`
+            }
+          >
+            <Compass className="w-[18px] h-[18px] text-outline flex-shrink-0" />
+            {!isCollapsed && <span className="truncate">Compare (1v1)</span>}
+          </NavLink>
+          <NavLink 
             to="/shortlist" 
             title="Shortlist"
             className={({ isActive }) => 

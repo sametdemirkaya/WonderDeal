@@ -78,8 +78,8 @@ const ShortlistPage = () => {
       {/* Header */}
       <section className="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md pt-space-md mb-4">
         <div className="flex flex-col gap-space-2xs">
-          <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight font-bold flex items-center gap-3">
-            <Bookmark className="w-8 h-8 text-primary" /> Shortlisted Players
+          <h1 className="font-display text-3xl lg:text-5xl text-on-surface tracking-tight font-bold flex items-center gap-3 lg:gap-4">
+            <Bookmark className="w-10 h-10 lg:w-12 lg:h-12 text-primary" /> Shortlisted Players
           </h1>
           <p className="text-on-surface-variant font-body-sm">
             Review your saved players grouped by their target profiles.

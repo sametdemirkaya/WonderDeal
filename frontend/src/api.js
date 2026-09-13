@@ -37,3 +37,14 @@ export const comparePlayers = async (payload) => {
     return null;
   }
 };
+
+export const getPlayerStats = async (playerId, season) => {
+  try {
+    const url = `/player/${playerId}/${encodeURIComponent(season)}`;
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching player stats:", error);
+    return null;
+  }
+};

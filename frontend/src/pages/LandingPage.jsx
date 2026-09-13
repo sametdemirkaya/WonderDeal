@@ -63,6 +63,11 @@ const LandingPage = () => {
               <span className="font-display font-bold text-xl tracking-tight text-white">WonderDeal</span>
             </div>
           </a>
+          <nav className="hidden md:flex items-center gap-8">
+            <button onClick={() => navigate('/scout')} className="text-sm font-semibold text-text-muted hover:text-white transition-colors uppercase tracking-wider">Scout</button>
+            <button onClick={() => navigate('/h2h')} className="text-sm font-semibold text-text-muted hover:text-white transition-colors uppercase tracking-wider">Compare</button>
+            <button onClick={() => navigate('/shortlist')} className="text-sm font-semibold text-text-muted hover:text-white transition-colors uppercase tracking-wider">Shortlist</button>
+          </nav>
         </div>
       </header>
 

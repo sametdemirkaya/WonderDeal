@@ -125,30 +125,30 @@ const PlayerComparisonPage = () => {
       {/* Match Players Cards */}
       <h3 className="text-xl font-bold font-headline-md mt-2">Compared Matches</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {matchPlayers.map((matchPlayer, idx) => {
-          const color = matchColors[idx % matchColors.length];
-          const isSaved = isInShortlist(matchPlayer.player_name);
-          return (
-            <div key={idx} className="bg-surface-container-low border-2 rounded-2xl p-space-lg shadow-lg relative overflow-hidden flex flex-col items-center transition-colors" style={{ borderColor: `${color}66` }}>
-              <div className="absolute top-0 w-full h-2" style={{ backgroundColor: color }}></div>
-              
-              {/* Bookmark Button */}
-              <button 
-                onClick={() => {
-                  if (isSaved) {
-                    removeFromShortlist(matchPlayer.player_name);
-                  } else {
-                    const targetObj = {
-                      player_id: targetData.target_player_id,
-                      player_name: targetData.target_player_name,
-                      season: targetData.target_season
-                    };
-                    addToShortlist(matchPlayer, targetObj);
-                  }
-                }}
-                className={`absolute top-4 right-4 p-2 rounded-full transition-colors z-10 ${isSaved ? 'bg-primary/20 text-primary' : 'bg-surface-container-high text-outline hover:text-on-surface hover:bg-surface-variant'}`}
-                title={isSaved ? "Remove from Shortlist" : "Add to Shortlist"}
-              >
+          {matchPlayers.map((matchPlayer, idx) => {
+            const color = matchColors[idx % matchColors.length];
+            const isSaved = isInShortlist(matchPlayer.player_id, matchPlayer.season);
+            return (
+              <div key={idx} className="bg-surface-container-low border-2 rounded-2xl p-space-lg shadow-lg relative overflow-hidden flex flex-col items-center transition-all hover:shadow-xl hover:-translate-y-1" style={{ borderColor: `${color}66` }}>
+                <div className="absolute top-0 w-full h-2" style={{ backgroundColor: color }}></div>
+                
+                {/* Bookmark Button */}
+                <button 
+                  onClick={() => {
+                    if (isSaved) {
+                      removeFromShortlist(matchPlayer.player_id, matchPlayer.season);
+                    } else {
+                      const targetObj = {
+                        player_id: targetData.target_player_id,
+                        player_name: targetData.target_player_name,
+                        season: targetData.target_season
+                      };
+                      addToShortlist(matchPlayer, targetObj);
+                    }
+                  }}
+                  className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-300 z-10 shadow-sm ${isSaved ? 'bg-primary text-on-primary scale-110 shadow-primary/40' : 'bg-surface-container-high text-outline hover:text-on-surface hover:bg-surface-variant hover:scale-110'}`}
+                  title={isSaved ? "Remove from Shortlist" : "Add to Shortlist"}
+                >
                 {isSaved ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
               </button>
 

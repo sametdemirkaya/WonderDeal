@@ -302,6 +302,69 @@ def search_players(
         ))
     return results
 
+@app.get("/api/player/{player_id}/{season}")
+def get_player_stats(player_id: int, season: str):
+    """Belirli bir oyuncunun tam profilini ve ön işlenmiş (per90/yüzdelik) istatistiklerini getirir."""
+    try:
+        if app_data['raw_df'].empty:
+            raise HTTPException(status_code=503, detail="Data not loaded yet")
+            
+        raw_match = app_data['raw_df'][(app_data['raw_df']['player id'] == player_id) & (app_data['raw_df']['season'] == season)]
+        if raw_match.empty:
+            raise HTTPException(status_code=404, detail="Player not found")
+            
+        raw_row = raw_match.iloc[0]
+        pos = raw_row['Pos']
+        df_prep = app_data['preprocessed_dfs'].get(pos)
+        
+        if df_prep is None:
+            raise HTTPException(status_code=404, detail="Position data not found")
+            
+        df_prep_reset = df_prep.reset_index()
+        match = df_prep_reset[(df_prep_reset['player id'] == player_id) & (df_prep_reset['season'] == season)]
+        
+        if match.empty:
+            raise HTTPException(status_code=404, detail="Player preprocessed data not found")
+            
+        stats_dict = match.iloc[0].to_dict()
+        
+        # Raw verilerden ekstra profil bilgilerini ekle
+        profile_info = {
+            'player_id': int(player_id),
+            'player_name': str(raw_row.get('player', 'Unknown')),
+            'team': str(raw_row.get('team', 'Unknown')),
+            'season': str(season),
+            'position': str(pos),
+            'age': float(raw_row.get('age')) if not pd.isna(raw_row.get('age')) else None,
+            'height': float(raw_row.get('height')) if not pd.isna(raw_row.get('height')) else None,
+            'foot': str(raw_row.get('foot')) if not pd.isna(raw_row.get('foot')) else None,
+            'market_value': float(raw_row.get('market_value')) if not pd.isna(raw_row.get('market_value')) else None,
+            'minutes_played': int(raw_row.get('minutesPlayed', 0)),
+            'stats': {}
+        }
+        
+        # Tüm model özelliklerini stats altına koy (NaN değerleri temizle)
+        feature_names = app_data['models']['pt'][pos].feature_names_in_
+        for k in feature_names:
+            v = stats_dict.get(k)
+            if pd.isna(v):
+                profile_info['stats'][k] = 0.0
+            else:
+                profile_info['stats'][k] = float(v)
+                    
+        # NaN değerleri None yap
+        for k, v in profile_info.items():
+            if pd.isna(v):
+                profile_info[k] = None
+                
+        return profile_info
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 FW_STATS = ['goals', 'assists', 'expectedGoals', 'shotsOnTarget', 'bigChancesCreated', 'successfulDribbles', 'touches']
 MF_STATS = ['accuratePassesPercentage', 'keyPasses', 'assists', 'successfulDribbles', 'ballRecovery', 'tackles', 'interceptions']
 DF_STATS = ['interceptions', 'clearances', 'tackles', 'ballRecovery', 'aerialDuelsWonPercentage', 'groundDuelsWonPercentage', 'accuratePassesPercentage']
