@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Compass, Search, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react'; // Using Lucide React
+import { Compass, Search, Bookmark, ChevronLeft, ChevronRight, Telescope } from 'lucide-react';
 
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
   return (
@@ -25,22 +25,35 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         <div className="pt-space-md pb-space-xs">
           {/* Removed Intelligence Workspace text */}
         </div>
-        <nav className="flex flex-col gap-1 px-3">
-          {/* Removed Discover Link */}
-          <NavLink 
-            to="/scout" 
-            title="Scout"
-            className={({ isActive }) => 
-              `relative flex items-center ${isCollapsed ? 'justify-center p-3' : 'gap-space-sm px-space-md py-space-sm'} rounded-lg transition-all font-display font-medium text-base ${
-                isActive 
-                  ? "bg-secondary-container text-on-surface font-semibold before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-container before:rounded-r" 
-                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-              }`
-            }
-          >
-            <Search className="w-[18px] h-[18px] text-outline flex-shrink-0" />
-            {!isCollapsed && <span className="truncate">Scout</span>}
-          </NavLink>
+          <nav className="flex flex-col gap-1 px-3 mt-4">
+            <NavLink 
+              to="/scout" 
+              title="Scout"
+              className={({ isActive }) => 
+                `relative flex items-center ${isCollapsed ? 'justify-center p-3' : 'gap-space-sm px-space-md py-space-sm'} rounded-lg transition-all font-display font-medium text-base ${
+                  isActive 
+                    ? "bg-secondary-container text-on-surface font-semibold before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-container before:rounded-r" 
+                    : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                }`
+              }
+            >
+              <Search className="w-[18px] h-[18px] text-outline flex-shrink-0" />
+              {!isCollapsed && <span className="truncate">Scout</span>}
+            </NavLink>
+            <NavLink 
+              to="/discover" 
+              title="Discover"
+              className={({ isActive }) => 
+                `relative flex items-center ${isCollapsed ? 'justify-center p-3' : 'gap-space-sm px-space-md py-space-sm'} rounded-lg transition-all font-display font-medium text-base ${
+                  isActive 
+                    ? "bg-secondary-container text-on-surface font-semibold before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-container before:rounded-r" 
+                    : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                }`
+              }
+            >
+              <Telescope className="w-[18px] h-[18px] text-outline flex-shrink-0" />
+              {!isCollapsed && <span className="truncate">Discover</span>}
+            </NavLink>
           <NavLink 
             to="/h2h" 
             title="Compare (1v1)"

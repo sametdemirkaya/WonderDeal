@@ -1,32 +1,32 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScoutStore } from '../store/useScoutStore';
-import { Bookmark, Trash2, ArrowRight, ChevronDown, ChevronUp, Target, Loader2 } from 'lucide-react';
+import { Bookmark, Trash2, ArrowRight, ChevronDown, ChevronUp, Target, Loader2, FileEdit } from 'lucide-react';
 import { getSimilarityColor, getDistanceColor } from '../utils/colorUtils';
 import { comparePlayers } from '../api';
 import PageTransition from '../components/PageTransition';
+import PlayerNoteModal from '../components/PlayerNoteModal';
 
 const ShortlistPage = () => {
   const { shortlist, removeFromShortlist, setCompareResults, setTargetPlayer } = useScoutStore();
   const navigate = useNavigate();
   const [openGroups, setOpenGroups] = useState({});
   const [isComparingTarget, setIsComparingTarget] = useState(null);
+  const [noteModalPlayer, setNoteModalPlayer] = useState(null);
 
   // Group the shortlist by target player name
   const groupedShortlist = useMemo(() => {
     const groups = {};
     shortlist.forEach(item => {
-      // Safely extract target name (handles both new object format and old string format)
-      let targetName = "Unknown Target";
-      if (typeof item.target === 'object' && item.target !== null) {
-        targetName = item.target.player_name || "Unknown Target";
-      } else if (typeof item.target === 'string') {
+      // Safely extract target name
+      let targetName = "Bağımsız Keşifler";
+      if (typeof item.target === 'object' && item.target !== null && item.target.player_name !== "Unknown") {
+        targetName = item.target.player_name || "Bağımsız Keşifler";
+      } else if (typeof item.target === 'string' && item.target !== "Unknown") {
         targetName = item.target;
       }
 
-      if (!groups[targetName]) {
-        groups[targetName] = [];
-      }
+      if (!groups[targetName]) groups[targetName] = [];
       groups[targetName].push(item);
     });
     return groups;
@@ -39,37 +39,24 @@ const ShortlistPage = () => {
     }));
   };
 
-  const handleViewComparison = async (item) => {
-    // If there is no valid target player, set this player as the new target
-    if (!item.target || !item.target.player_id || item.target.player_name === "Unknown") {
-      setTargetPlayer({
-        player_name: item.player.player_name,
-        player_id: item.player.player_id,
-        season: item.player.season,
-        team: item.player.team,
-        position_group: item.player.position_group
+  const handleViewComparison = (item) => {
+    // If there is no valid target player, set this saved player as Slot A and navigate to H2H
+    if (!item.target || !item.target.player_id || item.target.player_name === "Unknown" || item.target.player_name === "Bağımsız Keşifler") {
+      navigate('/h2h', { 
+        state: { 
+          playerA: { playerId: item.player.player_id, season: item.player.season, name: item.player.player_name } 
+        } 
       });
-      navigate('/scout');
       return;
     }
 
-    setIsComparingTarget(item.player.player_name);
-    try {
-      // Re-fetch the target's data along with broad matches to populate compareResults
-      const data = await comparePlayers({
-        target_player_id: item.target.player_id,
-        target_season: item.target.season,
-        min_minutes: 10
-      });
-      
-      setCompareResults(data);
-      navigate(`/compare?match=${encodeURIComponent(item.player.player_name)}`);
-    } catch (error) {
-      console.error("Failed to refetch comparison data:", error);
-      alert("Kıyaslama verisi alınamadı. Hedef oyuncu veritabanında bulunamıyor olabilir.");
-    } finally {
-      setIsComparingTarget(null);
-    }
+    // If there is a target player, Target -> Slot A, Saved -> Slot B
+    navigate('/h2h', { 
+      state: { 
+        playerA: { playerId: item.target.player_id, season: item.target.season, name: item.target.player_name },
+        playerB: { playerId: item.player.player_id, season: item.player.season, name: item.player.player_name }
+      } 
+    });
   };
 
   return (
@@ -162,30 +149,41 @@ const ShortlistPage = () => {
                               </button>
                             </div>
 
-                            <div className="bg-surface-container-low p-3 rounded-lg border border-outline-variant/20 mb-4 flex-1">
-                              <div className="flex justify-between text-sm mb-2">
-                                <span className="text-on-surface-variant">DNA Similarity</span>
-                                <span className={`font-data-metric-md font-bold ${simColor.text}`}>{item.player.cosine_similarity}%</span>
+                            {targetName !== "Bağımsız Keşifler" && (
+                              <div className="bg-surface-container-low p-3 rounded-lg border border-outline-variant/20 mb-4 flex-1">
+                                <div className="flex justify-between text-sm mb-2">
+                                  <span className="text-on-surface-variant">DNA Similarity</span>
+                                  <span className={`font-data-metric-md font-bold ${simColor.text}`}>{item.player.cosine_similarity}%</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-on-surface-variant">Quality/Volume Diff</span>
+                                  <span className={`font-data-metric-md font-bold ${distColor.text}`}>{item.player.euclidean_distance}</span>
+                                </div>
                               </div>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-on-surface-variant">Quality/Volume Diff</span>
-                                <span className={`font-data-metric-md font-bold ${distColor.text}`}>{item.player.euclidean_distance}</span>
-                              </div>
-                            </div>
+                            )}
 
-                            <button 
-                              onClick={() => handleViewComparison(item)}
-                              disabled={isFetching}
-                              className="w-full py-2.5 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-primary/20 text-on-surface hover:text-primary font-semibold rounded-lg transition-colors text-sm border border-transparent hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              {isFetching ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin" /> Yükleniyor...
-                                </>
-                              ) : (
-                                "View Comparison"
-                              )}
-                            </button>
+                            <div className="flex flex-col gap-2 mt-auto">
+                              <button 
+                                onClick={() => setNoteModalPlayer(item.player)}
+                                className="w-full py-2.5 flex items-center justify-center gap-2 bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-medium rounded-lg transition-colors text-sm border border-outline-variant/30 hover:border-outline-variant/60"
+                              >
+                                <FileEdit className="w-4 h-4" />
+                                Not Ekle / Görüntüle
+                              </button>
+                              <button 
+                                onClick={() => handleViewComparison(item)}
+                                disabled={isFetching}
+                                className="w-full py-2.5 flex items-center justify-center gap-2 bg-surface-container-high hover:bg-primary/20 text-on-surface hover:text-primary font-semibold rounded-lg transition-colors text-sm border border-transparent hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {isFetching ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 animate-spin" /> Yükleniyor...
+                                  </>
+                                ) : (
+                                  "HeadToHead'e Gönder"
+                                )}
+                              </button>
+                            </div>
                           </div>
                         );
                       })}
@@ -197,6 +195,11 @@ const ShortlistPage = () => {
           })}
         </div>
       )}
+      <PlayerNoteModal 
+        isOpen={!!noteModalPlayer} 
+        onClose={() => setNoteModalPlayer(null)} 
+        player={noteModalPlayer} 
+      />
     </PageTransition>
   );
 };

@@ -60,6 +60,15 @@ export const useScoutStore = create(
       isComparing: false,
       setIsComparing: (status) => set({ isComparing: status }),
 
+      // Player Notes State
+      playerNotes: {},
+      savePlayerNote: (playerId, noteData) => set((state) => ({
+        playerNotes: {
+          ...state.playerNotes,
+          [playerId]: noteData
+        }
+      })),
+
       // Shortlist State
       shortlist: [],
       addToShortlist: (player, targetPlayerObj) => set((state) => {
@@ -76,7 +85,10 @@ export const useScoutStore = create(
     }),
     {
       name: 'wonderdeal-scout-storage', // unique name
-      partialize: (state) => ({ shortlist: state.shortlist }), // Only persist the shortlist
+      partialize: (state) => ({ 
+        shortlist: state.shortlist,
+        playerNotes: state.playerNotes 
+      }), // Persist shortlist and notes
     }
   )
 );

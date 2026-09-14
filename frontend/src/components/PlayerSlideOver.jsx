@@ -1,19 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useScoutStore } from '../store/useScoutStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, TrendingUp, Activity, Bookmark, BookmarkCheck } from 'lucide-react';
+import { X, TrendingUp, Activity, Bookmark, BookmarkCheck, ChevronDown, ArrowRight } from 'lucide-react';
 import { getSimilarityColor, getDistanceColor } from '../utils/colorUtils';
 import PositionStatsChart from './PositionStatsChart';
+
+const STAT_CONFIG = {
+  goals: { label: 'GOL', color: 'text-success' },
+  assists: { label: 'AST', color: 'text-secondary' },
+  expectedGoals: { label: 'xG', color: 'text-warning' },
+  expectedAssists: { label: 'xA', color: 'text-[#8b5cf6]' },
+  rating: { label: 'RTG', color: 'text-primary' },
+  accuratePassesPercentage: { label: 'PAS %', color: 'text-primary' },
+  keyPasses: { label: 'K.PAS', color: 'text-warning' },
+  successfulDribbles: { label: 'DRİP', color: 'text-[#8b5cf6]' },
+  ballRecovery: { label: 'T.KAZ', color: 'text-success' },
+  tackles: { label: 'MÜD', color: 'text-error' },
+  interceptions: { label: 'P.ARA', color: 'text-warning' },
+  clearances: { label: 'UZK', color: 'text-on-surface-variant' },
+  aerialDuelsWonPercentage: { label: 'H.TOP %', color: 'text-info' },
+  groundDuelsWonPercentage: { label: 'İ.MÜD %', color: 'text-success' }
+};
 
 const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
   const navigate = useNavigate();
   const { targetPlayer, addToShortlist, removeFromShortlist, isInShortlist, shortlist } = useScoutStore();
   const [shouldRender, setShouldRender] = useState(isOpen);
+  
+  const scrollRef = useRef(null);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      if (scrollRef.current.scrollTop > 20) {
+        setShowScrollHint(false);
+      } else {
+        setShowScrollHint(true);
+      }
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
+      setShowScrollHint(true);
     } else {
       const timer = setTimeout(() => setShouldRender(false), 300); // Wait for transition
       return () => clearTimeout(timer);
@@ -36,7 +67,7 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+            className="absolute inset-0 bg-background/85 backdrop-blur-sm"
             onClick={onClose}
           />
           
@@ -46,7 +77,7 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-            className="relative w-full max-w-3xl max-h-[90vh] bg-surface border border-outline-variant/30 rounded-2xl shadow-2xl flex flex-col"
+            className="relative w-full max-w-3xl max-h-[90vh] bg-surface border border-outline-variant/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-start justify-between p-6 border-b border-outline-variant/30 bg-surface-container-low rounded-t-2xl shrink-0">
@@ -102,8 +133,49 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
             </div>
 
             {/* Body */}
-            <div className="p-6 flex-1 flex flex-col gap-6 overflow-y-auto">
+            <div 
+              className="p-6 flex-1 flex flex-col gap-6 overflow-y-auto"
+              ref={scrollRef}
+              onScroll={handleScroll}
+            >
             
+            {/* Compact Inline Stats Strip */}
+            {player.raw_stats && (
+              <div className="flex items-center bg-surface-container px-3 py-2 rounded-lg border border-surface-variant/50 shadow-sm mb-4">
+                <span className="text-[10px] font-bold text-outline uppercase tracking-wider mr-4 shrink-0 hidden sm:block">Temel İstatistikler</span>
+                <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-hide pb-0.5">
+                  {Object.entries(player.raw_stats).map(([key, val]) => {
+                    const config = STAT_CONFIG[key];
+                    if (!config || val === undefined || val === null) return null;
+                    
+                    const hasTotal = player.total_stats && player.total_stats[key] !== undefined;
+                    const isPercentage = key.toLowerCase().includes('percentage');
+                    const totalVal = hasTotal ? player.total_stats[key] : val;
+                    const isDifferent = totalVal !== val && !isPercentage;
+                    
+                    const totalStr = typeof totalVal === 'number' ? (Number.isInteger(totalVal) ? totalVal : totalVal.toFixed(1)) : totalVal;
+                    const p90Str = typeof val === 'number' ? val.toFixed(2) : val;
+
+                    return (
+                      <div key={key} className="flex flex-col items-start justify-center shrink-0 bg-surface px-3 py-1.5 rounded-md border border-outline-variant/40">
+                        <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider mb-0.5">{config.label}</span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className={`text-sm font-black font-data-metric-md ${config.color}`}>
+                            {totalStr}
+                          </span>
+                          {isDifferent && (
+                            <span className="text-[10px] font-semibold text-outline-variant">
+                              ({p90Str} p90)
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Radar Chart for Player Stats */}
             {player.raw_stats && (
               <div className="bg-surface-container-low p-5 rounded-xl border border-outline-variant/20">
@@ -120,34 +192,36 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
             )}
 
             {/* Similarity Metrics */}
-            <div className="bg-surface-container-low p-5 rounded-xl border border-primary/20">
-              <h3 className="font-semibold text-primary mb-4 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" /> Tactical & Volume Match
-              </h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-on-surface-variant">DNA Similarity</span>
-                    <span className={`font-data-metric-md font-bold ${simColor.text}`}>{player.cosine_similarity}%</span>
+            {targetPlayer && player.cosine_similarity !== undefined && (
+              <div className="bg-surface-container-low p-5 rounded-xl border border-primary/20">
+                <h3 className="font-semibold text-primary mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" /> Tactical & Volume Match
+                </h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-on-surface-variant">DNA Similarity</span>
+                      <span className={`font-data-metric-md font-bold ${simColor.text}`}>{player.cosine_similarity}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${simColor.bg}`} style={{ width: `${Math.max(0, Math.min(100, player.cosine_similarity))}%` }} />
+                    </div>
                   </div>
-                  <div className="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${simColor.bg}`} style={{ width: `${Math.max(0, Math.min(100, player.cosine_similarity))}%` }} />
-                  </div>
-                </div>
 
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-on-surface-variant">Quality/Volume Diff</span>
-                    <span className={`font-data-metric-md font-bold ${distColor.text}`}>{player.euclidean_distance}</span>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-on-surface-variant">Quality/Volume Diff</span>
+                      <span className={`font-data-metric-md font-bold ${distColor.text}`}>{player.euclidean_distance}</span>
+                    </div>
+                    <p className="text-xs text-outline mt-1 italic">* Lower volume diff means closer statistical output.</p>
                   </div>
-                  <p className="text-xs text-outline mt-1 italic">* Lower volume diff means closer statistical output.</p>
                 </div>
               </div>
-            </div>
+            )}
             
             {/* Key Similarity Drivers */}
-            {player.similarity_drivers && player.similarity_drivers.length > 0 && (
+            {targetPlayer && player.similarity_drivers && player.similarity_drivers.length > 0 && (
               <div className="bg-surface-container p-5 rounded-xl border border-outline-variant">
                 <h3 className="font-semibold text-primary mb-3 flex items-center gap-2">
                   <Activity className="w-4 h-4" /> Benzerliğin Ana Sebepleri
@@ -165,17 +239,46 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
               </div>
             )}
 
-            {/* Detailed Comparison Button */}
+            {/* Conditional Bottom Action */}
             <div className="pb-6">
               <button 
-                onClick={() => navigate(`/compare?match=${encodeURIComponent(player.player_name)}`)}
+                onClick={() => navigate('/h2h', { state: { playerA: { playerId: player.player_id, season: player.season, name: player.player_name } } })}
                 className="w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-body-md font-semibold rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all"
               >
-                <span>Detaylı Karşılaştırma</span>
+                <span>HeadToHead'e Gönder (Slot A)</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
           </div>
+
+            {/* Scroll Hint Overlay */}
+            <AnimatePresence>
+              {showScrollHint && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-surface via-surface/90 to-transparent pointer-events-none flex items-end justify-center pb-4 z-20"
+                >
+                  <div 
+                    onClick={() => {
+                      if (scrollRef.current) {
+                        scrollRef.current.scrollTo({
+                          top: scrollRef.current.scrollHeight,
+                          behavior: 'smooth'
+                        });
+                      }
+                    }}
+                    className="animate-bounce bg-surface-container-high rounded-full p-2 shadow-xl border border-outline/30 cursor-pointer pointer-events-auto hover:bg-surface-variant transition-colors hover:scale-110 active:scale-95"
+                    title="Aşağı Kaydır"
+                  >
+                    <ChevronDown className="w-5 h-5 text-primary" />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
           </motion.div>
         </div>
       )}

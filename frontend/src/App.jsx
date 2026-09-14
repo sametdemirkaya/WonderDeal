@@ -7,6 +7,7 @@ import LandingPage from './pages/LandingPage';
 import PlayerComparisonPage from './pages/PlayerComparisonPage';
 import ShortlistPage from './pages/ShortlistPage';
 import HeadToHeadPage from './pages/HeadToHeadPage';
+import DiscoverPage from './pages/DiscoverPage';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -20,6 +21,7 @@ const AnimatedRoutes = () => {
           <Route path="/compare" element={<PlayerComparisonPage />} />
           <Route path="/h2h" element={<HeadToHeadPage />} />
           <Route path="/shortlist" element={<ShortlistPage />} />
+          <Route path="/discover" element={<DiscoverPage />} />
         </Route>
       </Routes>
     </AnimatePresence>

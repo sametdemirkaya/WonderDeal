@@ -48,3 +48,14 @@ export const getPlayerStats = async (playerId, season) => {
     return null;
   }
 };
+
+export const discoverPlayers = async (payload) => {
+  try {
+    const response = await api.post('/discover', payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error discovering players:", error);
+    return [];
+  }
+};
+

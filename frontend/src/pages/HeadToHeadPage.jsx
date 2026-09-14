@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, Legend
 } from 'recharts';
@@ -208,6 +208,7 @@ const PlayerCard = ({ player, slotType }) => {
 
 const HeadToHeadPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [playerAData, setPlayerAData] = useState(null);
   const [playerBData, setPlayerBData] = useState(null);
 
@@ -215,9 +216,36 @@ const HeadToHeadPage = () => {
   const [showMetricsModal, setShowMetricsModal] = useState(false);
 
   const fetchPlayer = async (playerId, season, slot) => {
-    const data = await getPlayerStats(playerId, season);
-    if (slot === 'A') setPlayerAData(data);
-    else setPlayerBData(data);
+    try {
+      if (slot === 'A') setPlayerAData(null);
+      else setPlayerBData(null);
+      
+      const data = await getPlayerStats(playerId, season);
+      if (slot === 'A') setPlayerAData(data);
+      else setPlayerBData(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (location.state?.playerA) {
+      const p = location.state.playerA;
+      fetchPlayer(p.playerId, p.season, 'A');
+    }
+    if (location.state?.playerB) {
+      const p = location.state.playerB;
+      fetchPlayer(p.playerId, p.season, 'B');
+    }
+    
+    // Clear state to avoid refetching on reload
+    if (location.state?.playerA || location.state?.playerB) {
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  const handleSelectPlayer = (player, slot) => {
+    fetchPlayer(player.player_id, player.season, slot);
   };
 
   const handleRemoveMetric = (metric) => {
@@ -454,10 +482,21 @@ const HeadToHeadPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-surface-container-high rounded-xl border border-outline/30 shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh] overflow-hidden relative">
             <div className="p-4 border-b border-outline/20 flex items-center justify-between bg-surface-container">
-              <h2 className="font-bold text-lg text-on-surface">Metrikleri Düzenle</h2>
-              <button onClick={() => setShowMetricsModal(false)} className="text-on-surface-variant hover:text-on-surface">
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-4">
+                <h2 className="font-bold text-lg text-on-surface">Metrikleri Düzenle</h2>
+                <span className="text-xs text-on-surface-variant px-2 py-1 bg-surface rounded-md">{selectedMetrics.length} Seçili</span>
+              </div>
+              <div className="flex items-center gap-6">
+                <button 
+                  onClick={() => setSelectedMetrics([])} 
+                  className="text-sm font-semibold text-error hover:text-error/80 transition-colors"
+                >
+                  Tümünü Temizle
+                </button>
+                <button onClick={() => setShowMetricsModal(false)} className="text-on-surface-variant hover:text-on-surface">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
             <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-6">

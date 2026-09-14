@@ -56,6 +56,7 @@ class PlayerMatch(BaseModel):
     contract_until: Optional[str] = None
     market_value: Optional[float] = None
     raw_stats: Dict[str, float] = {}
+    total_stats: Dict[str, float] = {}
     similarity_drivers: List[str] = []
     
 class CompareResponse(BaseModel):
@@ -68,7 +69,39 @@ class CompareResponse(BaseModel):
     target_market_value_currency: Optional[str] = None
     target_pc_values: List[float]
     target_raw_stats: Dict[str, float] = {}
+    target_total_stats: Dict[str, float] = {}
     matches: List[PlayerMatch]
+
+class MetricFilter(BaseModel):
+    metric: str
+    min_value: Optional[float] = None
+    max_value: Optional[float] = None
+
+class DiscoverRequest(BaseModel):
+    filters: List[MetricFilter] = []
+    season: Optional[str] = "25-26"
+    position_group: Optional[str] = None
+    min_age: Optional[float] = None
+    max_age: Optional[float] = None
+    min_market_value: Optional[float] = None
+    max_market_value: Optional[float] = None
+    filter_mode: Optional[str] = "per90" # "per90" or "total"
+    limit: Optional[int] = 500
+
+class DiscoverMatch(BaseModel):
+    player_id: int
+    player_name: str
+    season: str
+    team: str
+    position_group: str
+    minutes_played: float
+    age: Optional[float] = None
+    height: Optional[float] = None
+    foot: Optional[str] = None
+    contract_until: Optional[str] = None
+    market_value: Optional[float] = None
+    raw_stats: Dict[str, float] = {}
+    total_stats: Dict[str, float] = {}
 
 import re
 
@@ -389,6 +422,21 @@ def get_raw_stats(raw_row: pd.Series, pos: str) -> dict:
             result[stat] = round(float(val), 2)
     return result
 
+def get_total_stats(raw_row: pd.Series, pos: str) -> dict:
+    stats_list = []
+    if 'FW' in pos:
+        stats_list = FW_STATS
+    elif 'MF' in pos:
+        stats_list = MF_STATS
+    else:
+        stats_list = DF_STATS
+        
+    result = {}
+    for stat in stats_list:
+        val = raw_row.get(stat, 0)
+        result[stat] = float(val) if pd.notnull(val) else 0.0
+    return result
+
 @app.get("/api/compare", response_model=CompareResponse)
 def compare_players(
     target_player_id: int, 
@@ -433,6 +481,7 @@ def compare_players(
         raise HTTPException(status_code=404, detail="Oyuncunun PCA uzayında vektörü bulunamadı.")
         
     target_raw_stats = get_raw_stats(target_row, pos)
+    target_total_stats = get_total_stats(target_row, pos)
         
     # Benzerlikleri hesapla
     # Sadece filtrelere uyanları (dakika ve istenilen sezon) al
@@ -511,6 +560,9 @@ def compare_players(
         top_indices = np.argsort(feature_scores)[::-1][:10]
         top_features = [format_feature_name(feature_names[idx]) for idx in top_indices]
         
+        raw_stats = get_raw_stats(raw_row, pos)
+        total_stats = get_total_stats(raw_row, pos)
+
         matches.append(PlayerMatch(
             player_id=p_id,
             player_name=p_name,
@@ -525,7 +577,8 @@ def compare_players(
             foot=raw_row.get('foot', None) if not pd.isna(raw_row.get('foot', None)) else None,
             contract_until=raw_row.get('contract_until', None) if not pd.isna(raw_row.get('contract_until', None)) else None,
             market_value=raw_row.get('market_value', None) if not pd.isna(raw_row.get('market_value', None)) else None,
-            raw_stats=get_raw_stats(raw_row, pos),
+            raw_stats=raw_stats,
+            total_stats=total_stats,
             similarity_drivers=top_features
         ))
         
@@ -539,5 +592,90 @@ def compare_players(
         target_market_value_currency=target_row.get('market_value_currency', None) if not pd.isna(target_row.get('market_value_currency', None)) else None,
         target_pc_values=target_pc_values,
         target_raw_stats=target_raw_stats,
+        target_total_stats=target_total_stats,
         matches=matches
     )
+
+@app.post("/api/discover", response_model=List[DiscoverMatch])
+def discover_players(request: DiscoverRequest):
+    """Filtreleme kriterlerine göre oyuncuları keşfetmek için kullanılır (Gelişmiş Arama)."""
+    if app_data['raw_df'].empty:
+        return []
+        
+    df = app_data['raw_df'].copy()
+    
+    # 1. Season filter
+    if request.season and request.season != "All":
+        df = df[df['season'] == request.season]
+        
+    # 2. Position filter
+    if request.position_group and request.position_group != "All":
+        if request.position_group == 'FW':
+            df = df[df['Pos'].str.contains('FW', na=False)]
+        elif request.position_group == 'MF':
+            df = df[df['Pos'].str.contains('MF', na=False) & ~df['Pos'].str.contains('FW', na=False)]
+        elif request.position_group == 'DF':
+            df = df[df['Pos'].str.contains('DF', na=False)]
+            
+    # 3. Age filter
+    if request.min_age is not None:
+        df = df[df['age'] >= request.min_age]
+    if request.max_age is not None:
+        df = df[df['age'] <= request.max_age]
+        
+    # 4. Market value filter
+    if request.min_market_value is not None:
+        df = df[df['market_value'] >= request.min_market_value]
+    if request.max_market_value is not None:
+        df = df[df['market_value'] <= request.max_market_value]
+        
+    # 5. Dynamic metric filters
+    for f in request.filters:
+        if f.metric in df.columns:
+            is_raw = 'Percentage' in f.metric or f.metric in ['rating', 'age', 'market_value', 'minutesPlayed', 'appearances']
+            
+            if request.filter_mode == 'total' or is_raw:
+                if f.min_value is not None:
+                    df = df[df[f.metric] >= f.min_value]
+                if f.max_value is not None:
+                    df = df[df[f.metric] <= f.max_value]
+            else:
+                minutes = df['minutesPlayed'].replace(0, 1)
+                p90_series = (df[f.metric] / minutes) * 90
+                if f.min_value is not None:
+                    df = df[p90_series >= f.min_value]
+                if f.max_value is not None:
+                    df = df[p90_series <= f.max_value]
+                
+    # Sort results (e.g. by market value or rating if exists, otherwise by minutesPlayed)
+    if 'market_value' in df.columns:
+        df = df.sort_values(by='market_value', ascending=False)
+    elif 'minutesPlayed' in df.columns:
+        df = df.sort_values(by='minutesPlayed', ascending=False)
+        
+    # Limit results
+    if request.limit:
+        df = df.head(request.limit)
+        
+    matches = []
+    for _, row in df.iterrows():
+        pos_str = str(row.get('Pos', ''))
+        raw_stats = get_raw_stats(row, pos_str)
+        total_stats = get_total_stats(row, pos_str)
+        matches.append(DiscoverMatch(
+            player_id=row['player id'],
+            player_name=row['player'],
+            season=row['season'],
+            team=row['team'],
+            position_group='FW' if 'FW' in pos_str else ('MF' if 'MF' in pos_str else 'DF'),
+            minutes_played=row.get('minutesPlayed', 0),
+            age=row.get('age', None) if not pd.isna(row.get('age', None)) else None,
+            height=row.get('height', None) if not pd.isna(row.get('height', None)) else None,
+            foot=row.get('foot', None) if not pd.isna(row.get('foot', None)) else None,
+            contract_until=row.get('contract_until', None) if not pd.isna(row.get('contract_until', None)) else None,
+            market_value=row.get('market_value', None) if not pd.isna(row.get('market_value', None)) else None,
+            raw_stats=raw_stats,
+            total_stats=total_stats
+        ))
+        
+    return matches

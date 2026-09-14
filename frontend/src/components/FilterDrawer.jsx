@@ -41,11 +41,15 @@ const FilterDrawer = ({ isOpen, onClose, filters, setFilters, onApply }) => {
   };
 
   const applyMinMv = () => {
-    updateLocalFilter({ min_market_value: parseMV(minMvStr) });
+    const parsed = parseMV(minMvStr);
+    updateLocalFilter({ min_market_value: parsed });
+    setMinMvStr(formatMV(parsed));
   };
   const applyMaxMv = () => {
     const parsed = parseMV(maxMvStr);
-    updateLocalFilter({ max_market_value: parsed === 0 ? 500000000 : parsed });
+    const finalVal = parsed === 0 ? 500000000 : parsed;
+    updateLocalFilter({ max_market_value: finalVal });
+    setMaxMvStr(formatMV(finalVal));
   };
 
   const handleApply = () => {

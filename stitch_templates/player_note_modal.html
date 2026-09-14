@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html class="dark" lang="en" style="">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#d7e3fc",
+                        "tertiary-fixed-dim": "#b7c9d9",
+                        "tertiary-container": "#8193a2",
+                        "on-secondary-fixed-variant": "#364764",
+                        "outline-variant": "#414753",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#005cba",
+                        "primary-container": "#448ffd",
+                        "primary-fixed-dim": "#abc7ff",
+                        "error-container": "#93000a",
+                        "background": "#071426",
+                        "inverse-on-surface": "#253144",
+                        "on-surface": "#d7e3fc",
+                        "surface-bright": "#2e3a4d",
+                        "on-secondary-fixed": "#071c36",
+                        "on-primary-container": "#002959",
+                        "surface-container-low": "#0f1c2e",
+                        "on-surface-variant": "#c1c6d5",
+                        "on-primary-fixed-variant": "#00458e",
+                        "surface-tint": "#abc7ff",
+                        "surface": "#071426",
+                        "on-tertiary-fixed-variant": "#384956",
+                        "outline": "#8b919f",
+                        "tertiary-fixed": "#d3e5f6",
+                        "surface-variant": "#293549",
+                        "on-secondary-container": "#a7b9db",
+                        "on-primary-fixed": "#001b3f",
+                        "surface-container-highest": "#293549",
+                        "on-primary": "#002f65",
+                        "surface-container-lowest": "#030e20",
+                        "secondary": "#b5c7ea",
+                        "surface-dim": "#071426",
+                        "on-tertiary-container": "#1b2b38",
+                        "surface-container": "#142032",
+                        "primary": "#abc7ff",
+                        "secondary-fixed-dim": "#b5c7ea",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#384a67",
+                        "tertiary": "#b7c9d9",
+                        "surface-container-high": "#1e2a3d",
+                        "on-secondary": "#1f314d",
+                        "on-tertiary-fixed": "#0c1d29",
+                        "inverse-surface": "#d7e3fc",
+                        "secondary-fixed": "#d6e3ff",
+                        "on-tertiary": "#21323f",
+                        "primary-fixed": "#d7e3ff",
+                        "on-error": "#690005"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "space-xl": "2rem",
+                        "space-xs": "0.25rem",
+                        "space-lg": "1.5rem",
+                        "space-md": "0.75rem",
+                        "space-sm": "0.5rem",
+                        "sidebar-width-collapsed": "4rem",
+                        "space-2xl": "3rem",
+                        "sidebar-width-expanded": "16rem",
+                        "space-base": "1rem",
+                        "gutter-compact": "0.5rem",
+                        "gutter-spacious": "1.5rem",
+                        "gutter-default": "1rem",
+                        "space-2xs": "0.125rem"
+                    },
+                    "fontFamily": {
+                        "headline-xl": [
+                            "plusJakartaSans"
+                        ],
+                        "headline-lg": [
+                            "plusJakartaSans"
+                        ],
+                        "label-caps": [
+                            "jetbrainsMono"
+                        ],
+                        "headline-sm": [
+                            "plusJakartaSans"
+                        ],
+                        "data-metric-md": [
+                            "jetbrainsMono"
+                        ],
+                        "body-sm": [
+                            "inter"
+                        ],
+                        "body-md": [
+                            "inter"
+                        ],
+                        "headline-md": [
+                            "plusJakartaSans"
+                        ],
+                        "display-hero-mobile": [
+                            "plusJakartaSans"
+                        ],
+                        "body-lg": [
+                            "inter"
+                        ],
+                        "data-metric-sm": [
+                            "jetbrainsMono"
+                        ],
+                        "data-metric-lg": [
+                            "jetbrainsMono"
+                        ],
+                        "display-hero": [
+                            "plusJakartaSans"
+                        ]
+                    },
+                    "fontSize": {
+                        "headline-xl": [
+                            "28px",
+                            {
+                                "lineHeight": "36px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "headline-lg": [
+                            "22px",
+                            {
+                                "lineHeight": "28px",
+                                "letterSpacing": "-0.015em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "label-caps": [
+                            "10px",
+                            {
+                                "lineHeight": "12px",
+                                "letterSpacing": "0.08em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "headline-sm": [
+                            "15px",
+                            {
+                                "lineHeight": "20px",
+                                "letterSpacing": "-0.005em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "data-metric-md": [
+                            "14px",
+                            {
+                                "lineHeight": "18px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "500"
+                            }
+                        ],
+                        "body-sm": [
+                            "12px",
+                            {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0em",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "body-md": [
+                            "13px",
+                            {
+                                "lineHeight": "20px",
+                                "letterSpacing": "0em",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "headline-md": [
+                            "18px",
+                            {
+                                "lineHeight": "24px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "display-hero-mobile": [
+                            "28px",
+                            {
+                                "lineHeight": "36px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "body-lg": [
+                            "15px",
+                            {
+                                "lineHeight": "24px",
+                                "letterSpacing": "-0.005em",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "data-metric-sm": [
+                            "11px",
+                            {
+                                "lineHeight": "14px",
+                                "letterSpacing": "0em",
+                                "fontWeight": "500"
+                            }
+                        ],
+                        "data-metric-lg": [
+                            "24px",
+                            {
+                                "lineHeight": "28px",
+                                "letterSpacing": "-0.03em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "display-hero": [
+                            "40px",
+                            {
+                                "lineHeight": "48px",
+                                "letterSpacing": "-0.025em",
+                                "fontWeight": "700"
+                            }
+                        ]
+                    }
+                },
+            },
+        }</script>
+</head>
+
+<body class="bg-surface text-on-surface antialiased">
+    <aside
+        class="fixed left-0 top-0 bottom-0 w-60 z-50 flex flex-col justify-between bg-surface-container-low border-r border-outline-variant/30">
+        <div class="flex flex-col w-full">
+            <div class="h-16 px-space-base flex items-center gap-space-sm border-b border-outline-variant/20"><img alt="Brand logo. - Primary color: #2f80ed
+- Font: plusJakartaSans
+- Mode: dark
+- Roundness: rounded-sm
+" class="h-8 w-auto object-contain"
+                    src="https://lh3.googleusercontent.com/aida/AEtjO1VXF55s2CFrB4s6V_J4aWOwzZ6cGca5KHIlsDzGLjjyN3uXiU3TgICET91DaIiygc9s6z2MT_Fx8mpG8kEaQjIwHKmZqF3tRbd13uynRb4sMFthdmGB659kHm8_YbJR3E3G28Tp81-8xrlgfj1NqZ1vakxt_oimnPKklnwpJiCgnUd_Qe1479xTgr_6LQDEdLx_9sSZemey9JG9J5iwszDzhiiNEiyXxRXKdwzK7F1iaI2vePeiSOmpUZY6"><span
+                    class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface font-semibold">WonderDeal</span>
+            </div>
+            <div class="px-space-base pt-space-md pb-space-xs"><span
+                    class="font-label-caps text-label-caps uppercase text-outline tracking-wider">Intelligence
+                    Workspace</span></div>
+            <nav class="flex flex-col gap-1 px-space-sm"
+                data-active-classes="bg-secondary-container text-on-surface font-semibold before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-container before:rounded-r">
+                <a class="relative flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md"
+                    data-path="discover" href="#"><span
+                        class="material-symbols-outlined text-outline text-[18px]">explore</span><span
+                        class="">Discover</span></a><a aria-current="page"
+                    class="relative flex items-center gap-space-sm px-space-md py-space-sm rounded-lg transition-all bg-secondary-container text-on-surface font-semibold before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-1 before:bg-primary-container before:rounded-r"
+                    data-path="scout" href="#"><span
+                        class="material-symbols-outlined text-outline text-[18px]">radar</span><span
+                        class="">Scout</span></a><a
+                    class="relative flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md"
+                    data-path="compare" href="#"><span
+                        class="material-symbols-outlined text-outline text-[18px]">compare_arrows</span><span
+                        class="">Compare</span></a><a
+                    class="relative flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md"
+                    data-path="shortlist" href="#"><span
+                        class="material-symbols-outlined text-outline text-[18px]">bookmark_border</span><span
+                        class="">Shortlist</span></a><a
+                    class="relative flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-body-md text-body-md"
+                    data-path="settings" href="#"><span
+                        class="material-symbols-outlined text-outline text-[18px]">tune</span><span
+                        class="">Settings</span></a></nav>
+        </div>
+        <div class="p-space-base border-t border-outline-variant/20 bg-surface-container-lowest/60">
+            <div class="flex items-center gap-space-md">
+                <div class="relative"><img alt="Profile"
+                        class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant"
+                        src="https://lh3.googleusercontent.com/aida/AEtjO1XOkBEYJ2R9Q_AGakuG3MMHXiI5xM05PhkGWgzPpUklENNEVi3TKV9tWChDr66iyOihL2K4Z-kjqbm1_JWC3Z-Ji2Yubt6y453rReAkBWaQgg8nnZijH3VWmpCJ_-tH0GiRaQAxUYFn_Ei2JuLp_jf4pW-MR_YgqKPKNayTPr4Y_Q4BW8snG0u1U14h58kXRHMixzWiOkCossd6bdJaMZVoxejaQ6Rlum2NDYMGMXEHm8t7mmQgRxLXZCk"><span
+                        class="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-primary ring-2 ring-surface-container-lowest"></span>
+                </div>
+                <div class="flex flex-col min-w-0 flex-1"><span
+                        class="font-headline-sm text-headline-sm truncate text-on-surface font-medium leading-tight">M.
+                        Laurent</span><span
+                        class="font-label-caps text-label-caps truncate text-outline tracking-tight mt-0.5">UEFA PRO •
+                        Directorate</span></div>
+            </div>
+        </div>
+    </aside>
+    <div class="pl-60 min-h-screen flex flex-col bg-surface">
+        <header
+            class="fixed top-0 left-60 right-0 h-16 z-40 bg-surface/85 backdrop-blur-md border-b border-outline-variant/20 flex items-center justify-between px-space-lg">
+            <div class="flex items-center gap-space-md min-w-0">
+                <div class="flex items-center gap-space-xs font-body-sm text-body-sm text-outline"><span
+                        class="hover:text-on-surface-variant transition-colors cursor-pointer">Platform</span><span
+                        class="text-outline-variant">/</span><span class="text-on-surface font-medium">Recruitment
+                        Terminal</span></div>
+            </div>
+            <div class="flex items-center gap-space-md">
+                <div class="relative hidden sm:flex items-center">
+                    <div
+                        class="flex items-center h-8 px-space-md bg-surface-container-lowest border border-outline-variant/40 rounded-lg text-outline font-body-sm text-body-sm w-64 justify-between cursor-pointer hover:border-outline-variant">
+                        <div class="flex items-center gap-space-sm"><span
+                                class="material-symbols-outlined text-outline text-[16px]">search</span><span
+                                class="">Search players, clubs...</span></div><kbd
+                            class="font-label-caps text-label-caps bg-surface-container-high px-1.5 py-0.5 rounded text-on-surface-variant border border-outline-variant/50">⌘K</kbd>
+                    </div>
+                </div><button
+                    class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors"><span
+                        class="material-symbols-outlined text-[18px]">dark_mode</span></button><button
+                    class="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors relative"><span
+                        class="material-symbols-outlined text-[18px]">notifications</span><span
+                        class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full"></span></button>
+            </div>
+        </header>
+        <main class="w-full pt-16 flex-1 bg-surface">
+            <div class="flex flex-col w-full relative">
+                <!-- BACKGROUND LAYER: Shortlist & Saved Players Screen (Context Behind Modal) -->
+                <div
+                    class="w-full min-h-screen px-space-lg py-space-base flex flex-col gap-space-lg pointer-events-none select-none opacity-60 filter blur-[2px]">
+                    <!-- Workspace Subheader Strip -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col gap-space-2xs">
+                            <div class="flex items-center gap-space-sm">
+                                <span class="font-label-caps text-label-caps text-primary uppercase">Recruitment Cohort
+                                    2025/26</span>
+                                <span class="text-outline-variant font-data-metric-sm text-data-metric-sm">•</span>
+                                <span class="font-data-metric-sm text-data-metric-sm text-outline">Cluster ID:
+                                    #EU-RWB-0994</span>
+                            </div>
+                            <div class="flex items-baseline gap-space-md">
+                                <h1 class="font-headline-xl text-headline-xl text-on-surface">Target Shortlist: Tier-1
+                                    Wing-Backs</h1>
+                                <span
+                                    class="font-label-caps text-label-caps px-space-sm py-space-2xs rounded bg-surface-container-high text-primary">12
+                                    Targets Tracked</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-space-sm">
+                            <div
+                                class="h-9 px-space-md bg-surface-container rounded flex items-center gap-space-sm text-on-surface font-body-sm text-body-sm">
+                                <span class="material-symbols-outlined text-[16px] text-outline">tune</span>
+                                <span class="">Filter Cohort</span>
+                            </div>
+                            <div
+                                class="h-9 px-space-md bg-primary-container text-on-primary-container font-headline-sm text-headline-sm rounded flex items-center gap-space-sm">
+                                <span class="material-symbols-outlined text-[18px]">add</span>
+                                <span class="">New Target Entity</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Data Matrix Background Mock -->
+                    <div class="grid grid-cols-12 gap-space-md">
+                        <!-- Cohort Summary Metric Tiles -->
+                        <div
+                            class="col-span-3 p-space-base bg-surface-container rounded-lg flex flex-col justify-between h-28">
+                            <div class="flex items-center justify-between text-outline">
+                                <span class="font-label-caps text-label-caps uppercase">Primary Fit Target</span>
+                                <span class="material-symbols-outlined text-[16px]">verified</span>
+                            </div>
+                            <div class="font-data-metric-lg text-data-metric-lg text-primary">Achraf Hakimi</div>
+                            <div
+                                class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+                                <span class="">Match Index: 94.8%</span>
+                                <span class="font-data-metric-sm text-data-metric-sm text-outline">Tier 1 Target</span>
+                            </div>
+                        </div>
+                        <div
+                            class="col-span-3 p-space-base bg-surface-container rounded-lg flex flex-col justify-between h-28">
+                            <div class="flex items-center justify-between text-outline">
+                                <span class="font-label-caps text-label-caps uppercase">Secondary Benchmark</span>
+                                <span class="material-symbols-outlined text-[16px]">insights</span>
+                            </div>
+                            <div class="font-data-metric-lg text-data-metric-lg text-on-surface">Jeremie Frimpong</div>
+                            <div
+                                class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+                                <span class="">Match Index: 91.2%</span>
+                                <span class="font-data-metric-sm text-data-metric-sm text-outline">Tier 1 Target</span>
+                            </div>
+                        </div>
+                        <div
+                            class="col-span-3 p-space-base bg-surface-container rounded-lg flex flex-col justify-between h-28">
+                            <div class="flex items-center justify-between text-outline">
+                                <span class="font-label-caps text-label-caps uppercase">Tactical Ceiling Index</span>
+                                <span class="material-symbols-outlined text-[16px]">analytics</span>
+                            </div>
+                            <div class="font-data-metric-lg text-data-metric-lg text-secondary">8.94 / 10</div>
+                            <div
+                                class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+                                <span class="">Transitional Phase</span>
+                                <span class="font-data-metric-sm text-data-metric-sm text-outline">+14.2% Over League
+                                    Median</span>
+                            </div>
+                        </div>
+                        <div
+                            class="col-span-3 p-space-base bg-surface-container rounded-lg flex flex-col justify-between h-28">
+                            <div class="flex items-center justify-between text-outline">
+                                <span class="font-label-caps text-label-caps uppercase">Est. Portfolio Outlay</span>
+                                <span class="material-symbols-outlined text-[16px]">payments</span>
+                            </div>
+                            <div class="font-data-metric-lg text-data-metric-lg text-on-surface">€68M - €75M</div>
+                            <div
+                                class="flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+                                <span class="">Contract Vulnerability: High</span>
+                                <span class="font-data-metric-sm text-data-metric-sm text-primary">Summer 2025</span>
+                            </div>
+                        </div>
+                        <!-- Main Target Table (Backdrop context) -->
+                        <div class="col-span-12 bg-surface-container rounded-xl overflow-hidden">
+                            <div
+                                class="h-10 px-space-base bg-surface-container-lowest flex items-center justify-between text-outline font-label-caps text-label-caps uppercase">
+                                <div class="w-72">Player Profile &amp; Dynamic Role</div>
+                                <div class="w-32 text-right">Age / Value</div>
+                                <div class="w-40 text-right">Progressive Runs</div>
+                                <div class="w-40 text-right">Pass Completion</div>
+                                <div class="w-36 text-right">Vector Match</div>
+                                <div class="w-32 text-center">Status</div>
+                            </div>
+                            <!-- Table Row 1 -->
+                            <div
+                                class="h-14 px-space-base flex items-center justify-between bg-surface-container-high/40">
+                                <div class="w-72 flex items-center gap-space-md">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-headline-sm text-headline-sm text-primary">
+                                        AH</div>
+                                    <div class="flex flex-col">
+                                        <span class="font-headline-sm text-headline-sm text-on-surface">Achraf
+                                            Hakimi</span>
+                                        <span class="font-body-sm text-body-sm text-outline">Paris Saint-Germain • RWB /
+                                            RB</span>
+                                    </div>
+                                </div>
+                                <div class="w-32 text-right font-data-metric-md text-data-metric-md text-on-surface">27y
+                                    • €65M</div>
+                                <div class="w-40 text-right font-data-metric-md text-data-metric-md text-primary">4.82
+                                    p90 (99th)</div>
+                                <div class="w-40 text-right font-data-metric-md text-data-metric-md text-on-surface">
+                                    86.4%</div>
+                                <div class="w-36 flex justify-end">
+                                    <span
+                                        class="px-space-sm py-space-2xs rounded-full bg-primary-container/20 text-primary font-data-metric-sm text-data-metric-sm">94.8%
+                                        Match</span>
+                                </div>
+                                <div class="w-32 flex justify-center">
+                                    <span
+                                        class="px-space-sm py-space-2xs rounded bg-surface-container-highest text-secondary font-label-caps text-label-caps">Priority
+                                        1</span>
+                                </div>
+                            </div>
+                            <!-- Table Row 2 -->
+                            <div
+                                class="h-14 px-space-base flex items-center justify-between bg-surface-container-low/50">
+                                <div class="w-72 flex items-center gap-space-md">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center font-headline-sm text-headline-sm text-on-surface">
+                                        JF</div>
+                                    <div class="flex flex-col">
+                                        <span class="font-headline-sm text-headline-sm text-on-surface">Jeremie
+                                            Frimpong</span>
+                                        <span class="font-body-sm text-body-sm text-outline">Bayer Leverkusen • RWB /
+                                            RM</span>
+                                    </div>
+                                </div>
+                                <div class="w-32 text-right font-data-metric-md text-data-metric-md text-on-surface">25y
+                                    • €50M</div>
+                                <div class="w-40 text-right font-data-metric-md text-data-metric-md text-primary">5.14
+                                    p90 (99th)</div>
+                                <div class="w-40 text-right font-data-metric-md text-data-metric-md text-on-surface">
+                                    82.1%</div>
+                                <div class="w-36 flex justify-end">
+                                    <span
+                                        class="px-space-sm py-space-2xs rounded-full bg-primary-container/20 text-primary font-data-metric-sm text-data-metric-sm">91.2%
+                                        Match</span>
+                                </div>
+                                <div class="w-32 flex justify-center">
+                                    <span
+                                        class="px-space-sm py-space-2xs rounded bg-surface-container-highest text-outline font-label-caps text-label-caps">Shortlist</span>
+                                </div>
+                            </div>
+                            <!-- Table Row 3 -->
+                            <div
+                                class="h-14 px-space-base flex items-center justify-between bg-surface-container-high/20">
+                                <div class="w-72 flex items-center gap-space-md">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-surface-bright flex items-center justify-center font-headline-sm text-headline-sm text-on-surface">
+                                        MG</div>
+                                    <div class="flex flex-col">
+                                        <span class="font-headline-sm text-headline-sm text-on-surface">Malo
+                                            Gusto</span>
+                                        <span class="font-body-sm text-body-sm text-outline">Chelsea FC • RB</span>
+                                    </div>
+                                </div>
+                                <div class="w-32 text-right font-data-metric-md text-data-metric-md text-on-surface">22y
+                                    • €38M</div>
+                                <div class="w-40 text-right font-data-metric-md text-data-metric-md text-on-surface">
+                                    3.67 p90 (87th)</div>
+                                <div class="w-40 text-right font-data-metric-md text-data-metric-md text-on-surface">
+                                    88.2%</div>
+                                <div class="w-36 flex justify-end">
+                                    <span
+                                        class="px-space-sm py-space-2xs rounded-full bg-surface-container-highest text-outline font-data-metric-sm text-data-metric-sm">84.5%
+                                        Match</span>
+                                </div>
+                                <div class="w-32 flex justify-center">
+                                    <span
+                                        class="px-space-sm py-space-2xs rounded bg-surface-container-highest text-outline font-label-caps text-label-caps">Monitoring</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- MODAL OVERLAY WRAPPER -->
+                <div
+                    class="fixed inset-0 z-50 flex items-center justify-center p-space-md bg-[#071426]/80 backdrop-blur-md overflow-y-auto">
+                    <!-- MAIN DOSSIER MODAL CONTAINER -->
+                    <div
+                        class="relative w-full max-w-4xl my-auto bg-[#0a1628]/95 border border-outline-variant/30 backdrop-blur-xl rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                        <div
+                            class="px-space-lg py-space-md border-b border-outline-variant/20 flex items-center justify-between bg-surface-container-lowest/40">
+                            <div class="flex items-center gap-space-md min-w-0">
+                                <div class="relative flex-shrink-0">
+                                    <div class="w-12 h-12 rounded-xl overflow-hidden ring-1 ring-outline-variant/40">
+                                        <img alt="Achraf Hakimi" class="w-full h-full object-cover"
+                                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDulA7jJfePu5SXoNh-8VK5dIqyDDnPrdDki6pGAtkv-_J3ds5DOyl2XaLefS8IhEPBARK6SHQ_M0EaTu-GDx4XUEZy4AQYBJh1unSOfOFX_yNG8dK2sJLtJg6Ct88-DkFUppnc0uAEDVCwXZADq6PRWViJ4jPBmm7I7dnZQznTF331KnHfyqxqi76Um2qnXuL8DtjvGpLJLwqBVWF1fQbpY7RwsMqi6R0KzOkf2aWbRedD3t1sImt7bA">
+                                    </div>
+                                </div>
+                                <div class="flex flex-col min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h2
+                                            class="font-headline-lg text-[20px] text-on-surface font-semibold tracking-tight">
+                                            Achraf Hakimi</h2><span
+                                            class="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant font-data-metric-sm text-[11px]">PSG
+                                            • Sağ Bek / RWB</span><span
+                                            class="px-2 py-0.5 rounded-md bg-surface-container text-outline font-data-metric-sm text-[11px]">27
+                                            Yaş</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-outline font-body-sm text-[12px] mt-0.5">
+                                        <span class="text-primary font-data-metric-sm text-[11px] font-semibold">%94.8
+                                            DNA Eşleşmesi</span></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5"><button
+                                    class="w-8 h-8 rounded-lg hover:bg-surface-container-high flex items-center justify-center text-outline hover:text-on-surface transition-colors"
+                                    title="Yazdır"></button><button
+                                    class="w-8 h-8 rounded-lg hover:bg-surface-container-high flex items-center justify-center text-outline hover:text-on-surface transition-colors"
+                                    title="Yeni Pencere"></button><button
+                                    class="w-8 h-8 rounded-lg hover:bg-surface-container-high hover:text-error flex items-center justify-center text-outline transition-colors ml-1"
+                                    title="Kapat"><span
+                                        class="material-symbols-outlined text-[20px]">close</span></button></div>
+                        </div>
+                        <div
+                            class="px-space-lg pt-space-sm border-b border-outline-variant/20 flex items-center justify-between">
+                            <div class="flex items-center gap-space-lg"><button
+                                    class="relative pb-3 text-[14px] font-headline-sm font-semibold text-primary before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary">Genel
+                                    Değerlendirme &amp; Aksiyonlar</button><button
+                                    class="pb-3 text-[14px] font-headline-sm font-medium text-outline hover:text-on-surface transition-colors flex items-center gap-1.5"><span
+                                        class="">İzlenen Maçlar</span><span
+                                        class="px-1.5 py-0.2 rounded bg-surface-container-high text-on-surface font-data-metric-sm text-[10px]">2</span></button><button
+                                    class="pb-3 text-[14px] font-headline-sm font-medium text-outline hover:text-on-surface transition-colors">Taktiksel
+                                    Metrikler &amp; Benchmark</button></div>
+                            <div class="flex items-center gap-2 pb-2"><span
+                                    class="font-label-caps text-label-caps uppercase text-outline">Tavan
+                                    Bonservis:</span><span
+                                    class="font-data-metric-md text-data-metric-md text-primary font-bold">€68M</span>
+                            </div>
+                        </div>
+                        <div class="p-space-lg flex flex-col gap-space-md max-h-[620px] overflow-y-auto">
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center justify-between"><span
+                                        class="font-label-caps text-label-caps uppercase tracking-wider text-outline font-semibold">Yönetici
+                                        Özeti &amp; Taktiksel Rol</span><span
+                                        class="text-[11px] text-outline hover:text-primary cursor-pointer transition-colors">Metni
+                                        Düzenle</span></div>
+                                <div
+                                    class="p-space-md bg-surface-container-lowest/60 border border-outline-variant/20 rounded-xl flex flex-col gap-2">
+                                    <p class="text-body-md text-on-surface leading-relaxed">3-2-4-1 ve dinamik 4-3-3
+                                        geçiş sisteminde sağ koridoru tek başına taşıyabilecek elit profil. Toplu
+                                        hücumda dış çizgi genişliği (<span
+                                            class="text-primary font-medium font-data-metric-sm">%64.7 başarılı
+                                            dripling</span>) ve xA/90 oranında lig lideri. Geçiş savunmasında atletizmi
+                                        sayesinde toparlanma süresi olağanüstü.</p>
+                                    <div
+                                        class="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-outline-variant/15">
+                                        <span class="text-[11px] font-medium text-outline mr-1">Etiketler:</span><span
+                                            class="px-2 py-0.5 rounded-md bg-primary-container/15 text-primary text-[11px] font-data-metric-sm">Direkt
+                                            İlk 11</span><span
+                                            class="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-[11px] font-data-metric-sm">Geniş
+                                            Alan Koridor Lideri</span><span
+                                            class="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-[11px] font-data-metric-sm">Bonservis
+                                            Riski: Düşük</span></div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-space-sm pt-2">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2"><span
+                                            class="font-label-caps text-label-caps uppercase tracking-wider text-outline font-semibold">Canlı
+                                            Maç Gözlemleri</span><span
+                                            class="w-1 h-1 rounded-full bg-outline-variant"></span><span
+                                            class="font-data-metric-sm text-[11px] text-outline">Seçili Maç Zaman
+                                            Çizelgesi</span></div><button
+                                        class="text-primary hover:text-primary-fixed text-[12px] font-headline-sm font-medium flex items-center gap-1 transition-colors"><span
+                                            class="material-symbols-outlined text-[15px]">add</span><span class="">Yeni
+                                            Maç Ekle</span></button>
+                                </div>
+                                <div class="flex items-center gap-2 overflow-x-auto pb-1"><button
+                                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-surface-container border border-primary/40 text-on-surface text-left transition-all flex-shrink-0 shadow-sm"><span
+                                            class="w-1.5 h-1.5 rounded-full bg-primary"></span><span
+                                            class="text-[13px] font-headline-sm font-semibold">PSG vs
+                                            Marseille</span><span
+                                            class="text-outline text-[11px] font-data-metric-sm">23 Şub</span><span
+                                            class="px-1.5 py-0.2 rounded bg-primary-container/20 text-primary font-data-metric-sm text-[11px] font-semibold">8.5</span></button><button
+                                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-surface-container-lowest/60 hover:bg-surface-container border border-outline-variant/20 text-on-surface-variant hover:text-on-surface text-left transition-all flex-shrink-0"><span
+                                            class="w-1.5 h-1.5 rounded-full bg-outline"></span><span
+                                            class="text-[13px] font-headline-sm font-medium">Bayern Münih vs
+                                            PSG</span><span class="text-outline text-[11px] font-data-metric-sm">12
+                                            Şub</span><span
+                                            class="px-1.5 py-0.2 rounded bg-surface-container text-outline font-data-metric-sm text-[11px]">7.8</span></button>
+                                </div>
+                                <div
+                                    class="flex flex-col gap-1.5 relative pl-4 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-px before:bg-outline-variant/30">
+                                    <div
+                                        class="relative flex items-start gap-3 p-2.5 rounded-lg hover:bg-surface-container-lowest/50 transition-colors group">
+                                        <div
+                                            class="flex-shrink-0 w-7 h-7 rounded-md bg-primary-container/20 text-primary font-data-metric-sm text-[11px] font-bold flex items-center justify-center -ml-5 z-10 border border-primary/30 ring-2 ring-[#0a1628]">
+                                            14'</div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2"><span
+                                                    class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-data-metric-sm text-[10px] font-semibold uppercase">Hücum
+                                                    Geçişi</span><span class="text-outline text-[11px]">Sağ Koridor / 34
+                                                    km/h Depar</span></div>
+                                            <p class="text-body-sm text-on-surface mt-1 leading-normal">Sağ koridordan
+                                                34 km/h deparla bindirme yaptı, penaltı noktasına tehlikeli yerden kesti
+                                                (<span class="text-primary font-data-metric-sm">xG +0.14</span>).</p>
+                                        </div><button
+                                            class="opacity-0 group-hover:opacity-100 text-outline hover:text-on-surface transition-opacity p-1"><span
+                                                class="material-symbols-outlined text-[16px]">more_vert</span></button>
+                                    </div>
+                                    <div
+                                        class="relative flex items-start gap-3 p-2.5 rounded-lg hover:bg-surface-container-lowest/50 transition-colors group">
+                                        <div
+                                            class="flex-shrink-0 w-7 h-7 rounded-md bg-primary text-on-primary font-data-metric-sm text-[11px] font-bold flex items-center justify-center -ml-5 z-10 ring-2 ring-[#0a1628]">
+                                            38'</div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2"><span
+                                                    class="px-1.5 py-0.5 rounded bg-surface-container text-secondary font-data-metric-sm text-[10px] font-semibold uppercase">1v1
+                                                    Savunma</span><span class="text-outline text-[11px]">Ters Kademe /
+                                                    Kritik Müdahale</span></div>
+                                            <p class="text-body-sm text-on-surface mt-1 leading-normal">Geçiş
+                                                savunmasında ters kademeye girdi, rakibin kontrasını topu taca atarak
+                                                kesti.</p>
+                                        </div><button
+                                            class="opacity-0 group-hover:opacity-100 text-outline hover:text-on-surface transition-opacity p-1"><span
+                                                class="material-symbols-outlined text-[16px]">more_vert</span></button>
+                                    </div>
+                                    <div
+                                        class="relative flex items-start gap-3 p-2.5 rounded-lg hover:bg-surface-container-lowest/50 transition-colors group">
+                                        <div
+                                            class="flex-shrink-0 w-7 h-7 rounded-md bg-surface-container text-on-surface font-data-metric-sm text-[11px] font-bold flex items-center justify-center -ml-5 z-10 border border-outline-variant/30 ring-2 ring-[#0a1628]">
+                                            72'</div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2"><span
+                                                    class="px-1.5 py-0.5 rounded bg-surface-container text-secondary font-data-metric-sm text-[10px] font-semibold uppercase">Pres
+                                                    &amp; Top Kazanımı</span><span class="text-outline text-[11px]">Ön
+                                                    Alan Şok Presi</span></div>
+                                            <p class="text-body-sm text-on-surface mt-1 leading-normal">Ön alanda
+                                                agresif şok presle topu kazandı, ceza sahası yayına kilit pas çıkardı.
+                                            </p>
+                                        </div><button
+                                            class="opacity-0 group-hover:opacity-100 text-outline hover:text-on-surface transition-opacity p-1"><span
+                                                class="material-symbols-outlined text-[16px]">more_vert</span></button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-2 p-1.5 bg-surface-container-lowest/70 border border-outline-variant/25 rounded-xl mt-1">
+                                    <div class="w-16 flex-shrink-0"><input
+                                            class="w-full h-8 px-2 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-primary font-data-metric-sm text-[12px] font-semibold focus:outline-none focus:border-primary text-center"
+                                            placeholder="Dk" type="text" value="84'"></div>
+                                    <div class="w-36 flex-shrink-0"><select
+                                            class="w-full h-8 px-2 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-on-surface font-body-sm text-[12px] focus:outline-none focus:border-primary cursor-pointer">
+                                            <option selected="">Hücum Geçişi</option>
+                                            <option>1v1 Savunma</option>
+                                            <option>Pres &amp; Geri Kazanım</option>
+                                            <option>Kilit Pas</option>
+                                        </select></div><input
+                                        class="flex-1 h-8 px-3 bg-surface-container-lowest border border-outline-variant/30 rounded-lg text-on-surface font-body-sm text-[12px] placeholder:text-outline focus:outline-none focus:border-primary"
+                                        placeholder="Aksiyon gözlemini yazın..." type="text"><button
+                                        class="h-8 px-3 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary hover:text-on-surface font-headline-sm text-[12px] font-semibold flex items-center gap-1 transition-colors"><span
+                                            class="material-symbols-outlined text-[16px]">add</span><span class="">Not
+                                            Ekle</span></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="px-space-lg py-space-sm border-t border-outline-variant/20 bg-surface-container-lowest/50 flex items-center justify-between">
+                            <div class="flex items-center gap-2 text-outline font-data-metric-sm text-[11px]"><span
+                                    class="w-1.5 h-1.5 rounded-full bg-primary"></span><span class="">Otomatik
+                                    kaydedildi (1 dk önce)</span><span class="">•</span><span class="">Sürüm 1.2</span>
+                            </div>
+                            <div class="flex items-center gap-2"><button
+                                    class="h-8 px-4 rounded-lg hover:bg-surface-container-high text-outline hover:text-on-surface font-headline-sm text-[13px] transition-colors">Vazgeç</button><button
+                                    class="h-8 px-4 rounded-lg bg-primary-container hover:bg-primary-container/90 text-on-primary-container font-headline-sm text-[13px] font-semibold flex items-center gap-1.5 shadow transition-all"><span
+                                        class="material-symbols-outlined text-[16px]">check</span><span class="">Notu
+                                        Kaydet</span></button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
