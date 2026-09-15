@@ -18,10 +18,9 @@ const ShortlistPage = () => {
   const groupedShortlist = useMemo(() => {
     const groups = {};
     shortlist.forEach(item => {
-      // Safely extract target name
-      let targetName = "Bağımsız Keşifler";
+      let targetName = "Independent Discoveries";
       if (typeof item.target === 'object' && item.target !== null && item.target.player_name !== "Unknown") {
-        targetName = item.target.player_name || "Bağımsız Keşifler";
+        targetName = item.target.player_name || "Independent Discoveries";
       } else if (typeof item.target === 'string' && item.target !== "Unknown") {
         targetName = item.target;
       }
@@ -41,7 +40,7 @@ const ShortlistPage = () => {
 
   const handleViewComparison = (item) => {
     // If there is no valid target player, set this saved player as Slot A and navigate to H2H
-    if (!item.target || !item.target.player_id || item.target.player_name === "Unknown" || item.target.player_name === "Bağımsız Keşifler") {
+    if (!item.target || !item.target.player_id || item.target.player_name === "Unknown" || item.target.player_name === "Independent Discoveries") {
       navigate('/h2h', { 
         state: { 
           playerA: { playerId: item.player.player_id, season: item.player.season, name: item.player.player_name } 
@@ -106,9 +105,9 @@ const ShortlistPage = () => {
                     </div>
                     <div>
                       <h2 className="text-lg font-bold font-headline-md flex items-center gap-2">
-                        Hedef: <span className="text-primary">{targetName}</span>
+                        Target: <span className="text-primary">{targetName}</span>
                       </h2>
-                      <p className="text-sm text-on-surface-variant">{items.length} {items.length === 1 ? 'Oyuncu' : 'Oyuncu'}</p>
+                      <p className="text-sm text-on-surface-variant">{items.length} {items.length === 1 ? 'Player' : 'Players'}</p>
                     </div>
                   </div>
                   <div className="text-outline">
@@ -149,7 +148,7 @@ const ShortlistPage = () => {
                               </button>
                             </div>
 
-                            {targetName !== "Bağımsız Keşifler" && (
+                            {targetName !== "Independent Discoveries" && (
                               <div className="bg-surface-container-low p-3 rounded-lg border border-outline-variant/20 mb-4 flex-1">
                                 <div className="flex justify-between text-sm mb-2">
                                   <span className="text-on-surface-variant">DNA Similarity</span>
@@ -168,7 +167,7 @@ const ShortlistPage = () => {
                                 className="w-full py-2.5 flex items-center justify-center gap-2 bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-medium rounded-lg transition-colors text-sm border border-outline-variant/30 hover:border-outline-variant/60"
                               >
                                 <FileEdit className="w-4 h-4" />
-                                Not Ekle / Görüntüle
+                                Add / View Notes
                               </button>
                               <button 
                                 onClick={() => handleViewComparison(item)}
@@ -177,10 +176,10 @@ const ShortlistPage = () => {
                               >
                                 {isFetching ? (
                                   <>
-                                    <Loader2 className="w-4 h-4 animate-spin" /> Yükleniyor...
+                                    <Loader2 className="w-4 h-4 animate-spin" /> Loading...
                                   </>
                                 ) : (
-                                  "HeadToHead'e Gönder"
+                                  "Send to HeadToHead"
                                 )}
                               </button>
                             </div>

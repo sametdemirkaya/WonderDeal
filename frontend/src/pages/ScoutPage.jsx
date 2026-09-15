@@ -199,8 +199,30 @@ const ScoutPage = () => {
 
   const handleCompareAction = () => {
     if (selectedPlayersForCompare.length === 0) return;
-    const playerNames = selectedPlayersForCompare.map(p => encodeURIComponent(p.player_name)).join(',');
-    navigate(`/compare?match=${playerNames}`);
+    
+    if (selectedPlayersForCompare.length === 1) {
+      if (targetPlayer) {
+        navigate('/h2h', { 
+          state: { 
+            playerA: { playerId: targetPlayer.player_id, season: targetPlayer.season, name: targetPlayer.player_name },
+            playerB: { playerId: selectedPlayersForCompare[0].player_id, season: selectedPlayersForCompare[0].season, name: selectedPlayersForCompare[0].player_name }
+          } 
+        });
+      } else {
+        navigate('/h2h', { 
+          state: { 
+            playerA: { playerId: selectedPlayersForCompare[0].player_id, season: selectedPlayersForCompare[0].season, name: selectedPlayersForCompare[0].player_name } 
+          } 
+        });
+      }
+    } else {
+      navigate('/h2h', { 
+        state: { 
+          playerA: { playerId: selectedPlayersForCompare[0].player_id, season: selectedPlayersForCompare[0].season, name: selectedPlayersForCompare[0].player_name },
+          playerB: { playerId: selectedPlayersForCompare[1].player_id, season: selectedPlayersForCompare[1].season, name: selectedPlayersForCompare[1].player_name }
+        } 
+      });
+    }
   };
 
   return (
@@ -240,7 +262,7 @@ const ScoutPage = () => {
             <div className="flex justify-center mt-2">
               <SeasonToggle 
                 options={[
-                  { label: 'Tüm Sezonlar', value: 'All' },
+                  { label: 'All Seasons', value: 'All' },
                   { label: '25-26', value: '25-26' },
                   { label: '24-25', value: '24-25' }
                 ]}
@@ -305,7 +327,7 @@ const ScoutPage = () => {
               className="px-4 py-2 bg-surface-card border border-border-subtle rounded-xl text-sm font-semibold text-white hover:bg-surface-variant transition-colors flex items-center gap-2 shadow-sm"
             >
               <SlidersHorizontal className="w-4 h-4 text-primary-blue" />
-              Gelişmiş Filtreler
+              Advanced Filters
             </button>
           </div>
           
@@ -379,7 +401,7 @@ const ScoutPage = () => {
           <div className="bg-surface-container-high/95 backdrop-blur-md px-6 py-3 rounded-full border border-primary/40 shadow-2xl flex items-center gap-6">
             
             <div className="text-sm font-semibold whitespace-nowrap">
-              <span className="text-primary">{selectedPlayersForCompare.length}</span> / 4 Selected
+              <span className="text-primary">{selectedPlayersForCompare.length}</span> / 2 Selected
             </div>
 
             <div className="flex items-center gap-2 border-l border-outline/30 pl-6">

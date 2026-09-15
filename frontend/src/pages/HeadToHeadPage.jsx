@@ -329,7 +329,7 @@ const HeadToHeadPage = () => {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4 z-10 relative bg-surface-container-low p-3 rounded-xl border border-surface-variant/30">
             <div className="flex items-center gap-2 flex-wrap flex-1">
               <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mr-2">
-                Aktif Metrikler ({selectedMetrics.length}):
+                Active Metrics ({selectedMetrics.length}):
               </span>
               {selectedMetrics.map(metric => (
                 <span key={metric} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container-high text-on-surface text-xs font-medium border border-surface-variant/50 shadow-sm transition-all hover:border-primary/40">
@@ -343,7 +343,7 @@ const HeadToHeadPage = () => {
               onClick={() => setShowMetricsModal(true)}
               className="shrink-0 px-4 py-2 bg-primary text-on-primary rounded-lg font-bold text-sm flex items-center gap-2 hover:bg-primary/90 transition-colors shadow-lg"
             >
-              <span className="hidden sm:inline">Metrikleri Düzenle</span>
+              <span className="hidden sm:inline">Edit Metrics</span>
             </button>
           </div>
 
@@ -450,7 +450,7 @@ const HeadToHeadPage = () => {
                           </div>
                           <span className="text-on-surface-variant/40">|</span>
                           <div className={`flex items-center font-bold px-1.5 py-0.5 rounded ${diff >= 0 ? 'bg-[#3b82f6]/20 text-[#3b82f6]' : 'bg-[#10b981]/20 text-[#10b981]'}`}>
-                            Fark: {diff > 0 ? '+' : ''}{diff.toFixed(2)}
+                            Diff: {diff > 0 ? '+' : ''}{diff.toFixed(2)}
                           </div>
                         </div>
                       </div>
@@ -483,15 +483,15 @@ const HeadToHeadPage = () => {
           <div className="bg-surface-container-high rounded-xl border border-outline/30 shadow-2xl w-full max-w-4xl flex flex-col max-h-[90vh] overflow-hidden relative">
             <div className="p-4 border-b border-outline/20 flex items-center justify-between bg-surface-container">
               <div className="flex items-center gap-4">
-                <h2 className="font-bold text-lg text-on-surface">Metrikleri Düzenle</h2>
-                <span className="text-xs text-on-surface-variant px-2 py-1 bg-surface rounded-md">{selectedMetrics.length} Seçili</span>
+                <h2 className="font-bold text-lg text-on-surface">Edit Metrics</h2>
+                <span className="text-xs text-on-surface-variant px-2 py-1 bg-surface rounded-md">{selectedMetrics.length} Selected</span>
               </div>
               <div className="flex items-center gap-6">
                 <button 
                   onClick={() => setSelectedMetrics([])} 
                   className="text-sm font-semibold text-error hover:text-error/80 transition-colors"
                 >
-                  Tümünü Temizle
+                  Clear All
                 </button>
                 <button onClick={() => setShowMetricsModal(false)} className="text-on-surface-variant hover:text-on-surface">
                   <X className="w-6 h-6" />
@@ -502,7 +502,7 @@ const HeadToHeadPage = () => {
             <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
               {/* Quick Sets */}
               <div>
-                <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-3">Hızlı Şablonlar (Quick Sets)</h3>
+                <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-3">Quick Presets</h3>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(PRESETS).map(([name, metrics]) => (
                     <button
@@ -518,7 +518,7 @@ const HeadToHeadPage = () => {
 
               {/* All Metrics Grid */}
               <div>
-                <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-3">Tüm Metrikler ({ALL_FEATURES.length})</h3>
+                <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-3">All Metrics ({ALL_FEATURES.length})</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                   {ALL_FEATURES.map(metric => {
                     const isSelected = selectedMetrics.includes(metric);
@@ -551,7 +551,7 @@ const HeadToHeadPage = () => {
                 onClick={() => setShowMetricsModal(false)}
                 className="px-6 py-2 bg-primary text-on-primary rounded-lg font-bold hover:bg-primary/90 transition-colors shadow-lg"
               >
-                Tamamla
+                Done
               </button>
             </div>
           </div>

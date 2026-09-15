@@ -43,12 +43,20 @@ export const useScoutStore = create(
         if (isSelected) {
           return { selectedPlayersForCompare: state.selectedPlayersForCompare.filter(p => !(p.player_id === player.player_id && p.season === player.season)) };
         } else {
-          // Max 4 players
-          if (state.selectedPlayersForCompare.length >= 4) return state;
+          // Max 2 players
+          if (state.selectedPlayersForCompare.length >= 2) return state;
           return { selectedPlayersForCompare: [...state.selectedPlayersForCompare, player] };
         }
       }),
       clearPlayerSelection: () => set({ selectedPlayersForCompare: [] }),
+
+      // Global SlideOver State
+      globalSlideOverPlayer: null,
+      setGlobalSlideOverPlayer: (player) => set({ globalSlideOverPlayer: player }),
+
+      // Spotlight Search Modal State
+      isSearchModalOpen: false,
+      setIsSearchModalOpen: (isOpen) => set({ isSearchModalOpen: isOpen }),
 
       // Compare Results State
       compareResults: null,

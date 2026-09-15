@@ -16,7 +16,7 @@ const parseMV = (val) => {
 
 const formatMV = (val) => {
   if (val === 0 || !val) return '';
-  if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+  if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
   if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
   return val.toString();
 };
@@ -85,14 +85,14 @@ const FilterDrawer = ({ isOpen, onClose, filters, setFilters, onApply }) => {
           <div className="flex items-center justify-between p-4 border-b border-border-subtle bg-surface/50">
             <h2 className="text-lg font-bold text-white font-headline-md flex items-center gap-2">
               <SlidersHorizontal className="w-5 h-5 text-primary-blue" />
-              Gelişmiş Filtreler
+              Advanced Filters
             </h2>
             <div className="flex items-center gap-2">
               <button 
                 onClick={handleApply}
                 className="px-3 py-1.5 bg-primary-blue hover:bg-primary-blue-hover text-white text-xs font-bold rounded-lg shadow-md transition-all flex items-center gap-1"
               >
-                Uygula
+                Apply
               </button>
               <button 
                 onClick={onClose}
@@ -115,7 +115,7 @@ const FilterDrawer = ({ isOpen, onClose, filters, setFilters, onApply }) => {
             />
 
             <PremiumSlider 
-              label="Maximum Quality Diff (Önerilen: < 15)" 
+              label="Maximum Quality Diff (Suggested: < 15)" 
               value={localFilters.max_distance} 
               min={0} max={30} step={0.5}
               onChange={(val) => updateLocalFilter({ max_distance: val })}
@@ -163,7 +163,7 @@ const FilterDrawer = ({ isOpen, onClose, filters, setFilters, onApply }) => {
                   onBlur={applyMinMv}
                   onKeyDown={(e) => e.key === 'Enter' && applyMinMv()}
                   className="flex-1 bg-surface border border-border-subtle rounded-xl px-4 py-2 text-sm text-center text-white uppercase focus:outline-none focus:border-primary-blue transition-colors shadow-inner"
-                  placeholder="Min (Örn: 100K)"
+                  placeholder="Min (Ex: 100K)"
                 />
                 <span className="text-text-muted text-sm font-bold">-</span>
                 <input 
@@ -173,10 +173,10 @@ const FilterDrawer = ({ isOpen, onClose, filters, setFilters, onApply }) => {
                   onBlur={applyMaxMv}
                   onKeyDown={(e) => e.key === 'Enter' && applyMaxMv()}
                   className="flex-1 bg-surface border border-border-subtle rounded-xl px-4 py-2 text-sm text-center text-white uppercase focus:outline-none focus:border-primary-blue transition-colors shadow-inner"
-                  placeholder="Max (Örn: 10M)"
+                  placeholder="Max (Ex: 10M)"
                 />
               </div>
-              <p className="text-[10px] text-text-dim text-center mt-1">Örn: "12.5M" (12.5 Milyon) veya "500K" (500 Bin)</p>
+              <p className="text-[10px] text-text-dim text-center mt-1">Ex: "12.5M" (12.5 Million) or "500K" (500 Thousand)</p>
             </div>
 
             {/* Season */}
@@ -184,7 +184,7 @@ const FilterDrawer = ({ isOpen, onClose, filters, setFilters, onApply }) => {
               <label className="text-xs font-semibold text-text-muted mb-1">Season Filter</label>
               <SeasonToggle 
                 options={[
-                  { label: 'Tüm Sezonlar', value: 'All' },
+                  { label: 'All Seasons', value: 'All' },
                   { label: '25-26', value: '25-26' },
                   { label: '24-25', value: '24-25' }
                 ]}

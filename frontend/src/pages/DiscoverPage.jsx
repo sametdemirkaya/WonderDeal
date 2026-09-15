@@ -68,8 +68,21 @@ const DiscoverPage = () => {
 
   const handleCompareAction = () => {
     if (selectedPlayersForCompare.length === 0) return;
-    const playerNames = selectedPlayersForCompare.map(p => encodeURIComponent(p.player_name)).join(',');
-    navigate(`/compare?match=${playerNames}`);
+    
+    if (selectedPlayersForCompare.length === 1) {
+      navigate('/h2h', { 
+        state: { 
+          playerA: { playerId: selectedPlayersForCompare[0].player_id, season: selectedPlayersForCompare[0].season, name: selectedPlayersForCompare[0].player_name } 
+        } 
+      });
+    } else {
+      navigate('/h2h', { 
+        state: { 
+          playerA: { playerId: selectedPlayersForCompare[0].player_id, season: selectedPlayersForCompare[0].season, name: selectedPlayersForCompare[0].player_name },
+          playerB: { playerId: selectedPlayersForCompare[1].player_id, season: selectedPlayersForCompare[1].season, name: selectedPlayersForCompare[1].player_name }
+        } 
+      });
+    }
   };
 
   const handleAddMetric = (metricId) => {
@@ -167,15 +180,15 @@ const DiscoverPage = () => {
     <div className="flex-1 p-6 overflow-y-auto max-w-[1600px] mx-auto w-full">
       <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline-md text-on-surface mb-2 tracking-tight">Oyuncu Keşfet</h1>
-          <p className="text-on-surface-variant text-sm">İstediğiniz istatistiksel eşikleri belirleyerek veritabanındaki oyuncuları filtreleyin.</p>
+          <h1 className="text-3xl font-bold font-headline-md text-on-surface mb-2 tracking-tight">Discover Players</h1>
+          <p className="text-on-surface-variant text-sm">Filter players in the database by setting your desired statistical thresholds.</p>
         </div>
         <div className="flex-shrink-0">
           <SeasonToggle 
             options={[
-              { label: '25-26 Sezonu', value: '25-26' },
-              { label: '24-25 Sezonu', value: '24-25' },
-              { label: 'Tüm Sezonlar', value: 'All' }
+              { label: '25-26 Season', value: '25-26' },
+              { label: '24-25 Season', value: '24-25' },
+              { label: 'All Seasons', value: 'All' }
             ]}
             selected={season} 
             onChange={setSeason} 
@@ -190,12 +203,12 @@ const DiscoverPage = () => {
           {/* Temel Filtreler */}
           <div>
             <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-4 flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4" /> Temel Kriterler
+              <SlidersHorizontal className="w-4 h-4" /> Basic Criteria
             </h3>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-on-surface-variant mb-1">Pozisyon</label>
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">Position</label>
                 <select 
                   value={position} 
                   onChange={(e) => setPosition(e.target.value)}
@@ -206,7 +219,7 @@ const DiscoverPage = () => {
               </div>
               
               <div>
-                <label className="block text-xs font-semibold text-on-surface-variant mb-1">Yaş Aralığı</label>
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">Age Range</label>
                 <div className="flex gap-2">
                   <input type="number" placeholder="Min" value={minAge} onChange={e => setMinAge(e.target.value)} className="w-full bg-surface border border-outline/30 rounded-lg p-2 text-sm text-on-surface outline-none focus:border-primary" />
                   <input type="number" placeholder="Max" value={maxAge} onChange={e => setMaxAge(e.target.value)} className="w-full bg-surface border border-outline/30 rounded-lg p-2 text-sm text-on-surface outline-none focus:border-primary" />
@@ -214,7 +227,7 @@ const DiscoverPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-on-surface-variant mb-1">Piyasa Değeri (€)</label>
+                <label className="block text-xs font-semibold text-on-surface-variant mb-1">Market Value (€)</label>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
@@ -243,7 +256,7 @@ const DiscoverPage = () => {
           <div>
             <div className="flex flex-col gap-2 mb-4">
               <h3 className="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
-                <Activity className="w-4 h-4" /> İstatistiksel Metrikler
+                <Activity className="w-4 h-4" /> Statistical Metrics
               </h3>
               
               <div className="flex bg-surface-container-low rounded-lg p-1 border border-outline/20">
@@ -257,7 +270,7 @@ const DiscoverPage = () => {
                   onClick={() => setFilterMode('total')}
                   className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-colors ${filterMode === 'total' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50'}`}
                 >
-                  Toplam (Total)
+                  Total
                 </button>
               </div>
             </div>
@@ -272,7 +285,7 @@ const DiscoverPage = () => {
                 }}
                 className="w-full bg-surface border border-outline/30 rounded-lg p-2 text-sm text-on-surface outline-none focus:border-primary transition-colors cursor-pointer"
               >
-                <option value="">+ Yeni Metrik Ekle</option>
+                <option value="">+ Add New Metric</option>
                 {AVAILABLE_METRICS.filter(m => !filters.find(f => f.metric === m.id)).map(m => (
                   <option key={m.id} value={m.id}>{m.label}</option>
                 ))}
@@ -312,7 +325,7 @@ const DiscoverPage = () => {
               })}
               {filters.length === 0 && (
                 <div className="text-xs text-outline italic text-center py-4 bg-surface/50 rounded-lg border border-dashed border-outline/30">
-                  Henüz metrik eklenmedi. Yukarıdan seçin.
+                  No metrics added yet. Select from above.
                 </div>
               )}
             </div>
@@ -327,7 +340,7 @@ const DiscoverPage = () => {
             ) : (
               <>
                 <Search className="w-5 h-5" />
-                Sonuçları Getir
+                Get Results
               </>
             )}
           </button>
@@ -338,8 +351,8 @@ const DiscoverPage = () => {
           {hasSearched && (
             <div className="bg-surface-container rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden min-h-[500px]">
               <div className="p-4 border-b border-outline-variant/30 flex items-center justify-between">
-                <h2 className="font-bold text-lg text-on-surface">Arama Sonuçları</h2>
-                <span className="text-xs font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{results.length} Oyuncu Bulundu</span>
+                <h2 className="font-bold text-lg text-on-surface">Search Results</h2>
+                <span className="text-xs font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{results.length} Players Found</span>
               </div>
               
               {results.length > 0 ? (
@@ -349,12 +362,12 @@ const DiscoverPage = () => {
                       <thead>
                         <tr className="bg-surface-container-low border-b border-outline-variant/30 text-xs uppercase tracking-wider font-semibold text-outline">
                           <th className="p-4 w-12 text-center"></th>
-                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('player_name')}>Oyuncu <SortIcon columnKey="player_name" /></th>
-                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('team')}>Takım <SortIcon columnKey="team" /></th>
-                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('position_group')}>Mevki <SortIcon columnKey="position_group" /></th>
-                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('age')}>Yaş <SortIcon columnKey="age" /></th>
-                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('market_value')}>Piyasa D. <SortIcon columnKey="market_value" /></th>
-                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('minutes_played')}>Dakika <SortIcon columnKey="minutes_played" /></th>
+                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('player_name')}>Player <SortIcon columnKey="player_name" /></th>
+                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('team')}>Team <SortIcon columnKey="team" /></th>
+                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('position_group')}>Pos <SortIcon columnKey="position_group" /></th>
+                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('age')}>Age <SortIcon columnKey="age" /></th>
+                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('market_value')}>Market V. <SortIcon columnKey="market_value" /></th>
+                          <th className="p-4 cursor-pointer hover:bg-surface-variant/50 transition-colors" onClick={() => handleSort('minutes_played')}>Minutes <SortIcon columnKey="minutes_played" /></th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-outline-variant/20">
@@ -443,8 +456,8 @@ const DiscoverPage = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center p-12 text-center h-full min-h-[400px]">
                   <Activity className="w-12 h-12 text-outline-variant mb-4" />
-                  <h3 className="text-lg font-bold text-on-surface mb-2">Sonuç Bulunamadı</h3>
-                  <p className="text-on-surface-variant text-sm max-w-md">Bu kriterlere uygun oyuncu bulunamadı. Filtreleri esnetmeyi veya bazı metrikleri kaldırmayı deneyin.</p>
+                  <h3 className="text-lg font-bold text-on-surface mb-2">No Results Found</h3>
+                  <p className="text-on-surface-variant text-sm max-w-md">No players found matching these criteria. Try relaxing your filters or removing some metrics.</p>
                 </div>
               )}
             </div>
@@ -453,8 +466,8 @@ const DiscoverPage = () => {
           {!hasSearched && (
             <div className="flex flex-col items-center justify-center p-12 text-center h-full min-h-[500px] border-2 border-dashed border-outline/20 rounded-xl">
               <Search className="w-12 h-12 text-outline-variant mb-4" />
-              <h3 className="text-lg font-bold text-on-surface mb-2">Keşfetmeye Hazır</h3>
-              <p className="text-on-surface-variant text-sm max-w-md">Sol taraftan aramak istediğiniz kriterleri belirleyin ve "Sonuçları Getir" butonuna tıklayın.</p>
+              <h3 className="text-lg font-bold text-on-surface mb-2">Ready to Discover</h3>
+              <p className="text-on-surface-variant text-sm max-w-md">Set your criteria on the left and click "Get Results" to start.</p>
             </div>
           )}
         </div>
@@ -473,7 +486,7 @@ const DiscoverPage = () => {
           <div className="bg-surface-container-high/95 backdrop-blur-md px-6 py-3 rounded-full border border-primary/40 shadow-2xl flex items-center gap-6">
             
             <div className="text-sm font-semibold whitespace-nowrap">
-              <span className="text-primary">{selectedPlayersForCompare.length}</span> / 4 Seçildi
+              <span className="text-primary">{selectedPlayersForCompare.length}</span> / 2 Selected
             </div>
 
             <div className="flex items-center gap-2 border-l border-outline/30 pl-6">
@@ -491,7 +504,7 @@ const DiscoverPage = () => {
               <button 
                 onClick={clearPlayerSelection}
                 className="p-2 text-outline hover:text-error hover:bg-error/10 rounded-full transition-colors"
-                title="Tümünü Temizle"
+                title="Clear All"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -500,7 +513,7 @@ const DiscoverPage = () => {
                 disabled={selectedPlayersForCompare.length < 2}
                 className="bg-primary text-on-primary px-6 py-2 rounded-full font-bold text-sm shadow-md hover:bg-primary-container hover:text-on-primary-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
-                Karşılaştır
+                Compare
               </button>
             </div>
             

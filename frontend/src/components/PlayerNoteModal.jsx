@@ -133,7 +133,7 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 rounded-lg hover:bg-surface-container-high hover:text-error flex items-center justify-center text-outline transition-colors ml-1" title="Kapat"
+                  className="w-8 h-8 rounded-lg hover:bg-surface-container-high hover:text-error flex items-center justify-center text-outline transition-colors ml-1" title="Close"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -144,12 +144,12 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
             <div className="px-6 pt-2 border-b border-outline-variant/20 flex flex-wrap items-center justify-between gap-y-2">
               <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto">
                 <button className="relative pb-3 text-sm font-semibold text-primary before:absolute before:bottom-0 before:left-0 before:right-0 before:h-0.5 before:bg-primary whitespace-nowrap">
-                  Genel Değerlendirme & Aksiyonlar
+                  Overview & Actions
                 </button>
                 {/* Tabs 2 and 3 removed */}
               </div>
               <div className="flex items-center gap-2 pb-2">
-                <span className="text-xs font-semibold uppercase text-outline tracking-wider">Önerilen Tavan Bonservis:</span>
+                <span className="text-xs font-semibold uppercase text-outline tracking-wider">Max Transfer Fee:</span>
                 {isEditingMaxValue ? (
                   <div className="flex items-center">
                     <span className="text-primary font-bold text-base">€</span>
@@ -167,7 +167,7 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
                         if (e.key === 'Enter') e.target.blur();
                       }}
                       autoFocus
-                      placeholder="Örn: 300K"
+                      placeholder="Ex: 300K"
                     />
                   </div>
                 ) : (
@@ -181,7 +181,7 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
                       setIsEditingMaxValue(true);
                     }}
                   >
-                    {maxValue ? (maxValue.startsWith('€') ? maxValue : `€${maxValue}`) : 'Belirtilmedi'}
+                    {maxValue ? (maxValue.startsWith('€') ? maxValue : `€${maxValue}`) : 'Not specified'}
                   </span>
                 )}
               </div>
@@ -193,13 +193,13 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs uppercase tracking-wider text-outline font-bold">
-                    Yönetici Özeti & Taktiksel Rol
+                    Executive Summary & Tactical Role
                   </span>
                   <button
                     onClick={() => setIsEditing(!isEditing)}
                     className="text-xs text-outline hover:text-primary cursor-pointer transition-colors font-medium"
                   >
-                    {isEditing ? "Bitti" : "Metni Düzenle"}
+                    {isEditing ? "Done" : "Edit Text"}
                   </button>
                 </div>
                 <div className="p-4 bg-surface-container-lowest/60 border border-outline-variant/20 rounded-xl flex flex-col gap-3 min-h-[120px]">
@@ -208,7 +208,7 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
                       className="w-full h-24 bg-surface-container/50 text-sm text-on-surface leading-relaxed border border-outline-variant/30 rounded-lg p-3 focus:outline-none focus:border-primary resize-none transition-colors"
                       value={summaryText}
                       onChange={(e) => setSummaryText(e.target.value)}
-                      placeholder="Oyuncu hakkında taktiksel bir özet yazın..."
+                      placeholder="Write a tactical summary about the player..."
                     />
                   ) : (
                     <>
@@ -217,7 +217,7 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
                           className="flex-1 flex items-center justify-center text-outline/50 italic text-sm cursor-pointer hover:text-outline transition-colors"
                           onClick={() => setIsEditing(true)}
                         >
-                          Bu oyuncu için henüz bir taktiksel özet eklenmedi, yazmak için tıklayın.
+                          No tactical summary added for this player yet, click to write.
                         </div>
                       ) : (
                         <p className="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">
@@ -229,7 +229,7 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
 
                   {/* Dynamic Tags */}
                   <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-outline-variant/15 mt-auto">
-                    <span className="text-xs font-semibold text-outline mr-1">Etiketler:</span>
+                    <span className="text-xs font-semibold text-outline mr-1">Tags:</span>
                     {tags.map((tag, index) => (
                       <span key={index} className="px-2.5 py-1 rounded-md bg-primary-container/20 border border-primary/20 text-primary text-xs font-medium flex items-center gap-1.5 shadow-sm">
                         {tag}
@@ -241,7 +241,7 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
                     <input
                       type="text"
                       className="bg-transparent border border-dashed border-outline-variant/50 hover:border-outline-variant text-on-surface text-xs px-3 py-1 rounded-md focus:outline-none focus:border-primary focus:border-solid w-32 placeholder:text-outline-variant/70 transition-all"
-                      placeholder="Etiket Ekle"
+                      placeholder="Add Tag"
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleAddTag}
@@ -260,14 +260,14 @@ const PlayerNoteModal = ({ player, isOpen, onClose }) => {
                   onClick={onClose}
                   className="h-9 px-4 rounded-lg hover:bg-surface-container-high text-outline hover:text-on-surface text-sm font-medium transition-colors"
                 >
-                  Vazgeç
+                  Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   className="h-9 px-5 rounded-lg bg-primary hover:bg-primary-hover text-on-primary text-sm font-semibold flex items-center gap-2 shadow transition-all"
                 >
                   <Check className="w-4 h-4" />
-                  <span>Notu Kaydet</span>
+                  <span>Save Note</span>
                 </button>
               </div>
             </div>

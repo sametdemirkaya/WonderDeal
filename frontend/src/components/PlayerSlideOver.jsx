@@ -142,7 +142,7 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
             {/* Compact Inline Stats Strip */}
             {player.raw_stats && (
               <div className="flex items-center bg-surface-container px-3 py-2 rounded-lg border border-surface-variant/50 shadow-sm mb-4">
-                <span className="text-[10px] font-bold text-outline uppercase tracking-wider mr-4 shrink-0 hidden sm:block">Temel İstatistikler</span>
+                <span className="text-[10px] font-bold text-outline uppercase tracking-wider mr-4 shrink-0 hidden sm:block">Basic Stats</span>
                 <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-hide pb-0.5">
                   {Object.entries(player.raw_stats).map(([key, val]) => {
                     const config = STAT_CONFIG[key];
@@ -224,7 +224,7 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
             {targetPlayer && player.similarity_drivers && player.similarity_drivers.length > 0 && (
               <div className="bg-surface-container p-5 rounded-xl border border-outline-variant">
                 <h3 className="font-semibold text-primary mb-3 flex items-center gap-2">
-                  <Activity className="w-4 h-4" /> Benzerliğin Ana Sebepleri
+                  <Activity className="w-4 h-4" /> Key Similarity Drivers
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {player.similarity_drivers.map((driver, index) => (
@@ -241,13 +241,29 @@ const PlayerSlideOver = ({ isOpen, onClose, player, targetData }) => {
 
             {/* Conditional Bottom Action */}
             <div className="pb-6">
-              <button 
-                onClick={() => navigate('/h2h', { state: { playerA: { playerId: player.player_id, season: player.season, name: player.player_name } } })}
-                className="w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-body-md font-semibold rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all"
-              >
-                <span>HeadToHead'e Gönder (Slot A)</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+                <button 
+                  onClick={() => {
+                    if (targetPlayer) {
+                      navigate('/h2h', { 
+                        state: { 
+                          playerA: { playerId: targetPlayer.player_id, season: targetPlayer.season, name: targetPlayer.player_name },
+                          playerB: { playerId: player.player_id, season: player.season, name: player.player_name }
+                        } 
+                      });
+                    } else {
+                      navigate('/h2h', { 
+                        state: { 
+                          playerA: { playerId: player.player_id, season: player.season, name: player.player_name } 
+                        } 
+                      });
+                    }
+                    onClose();
+                  }}
+                  className="w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-body-md font-semibold rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all"
+                >
+                  <span>Send to HeadToHead</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
             </div>
 
           </div>

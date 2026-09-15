@@ -384,11 +384,23 @@ def get_player_stats(player_id: int, season: str):
                 profile_info['stats'][k] = 0.0
             else:
                 profile_info['stats'][k] = float(v)
+                
+        # Manuel olarak PCA'dan çıkarılmış olan rating değerini ekle (Radar grafiği için)
+        raw_rating = raw_row.get('rating')
+        if pd.isna(raw_rating):
+            profile_info['stats']['rating'] = 0.0
+        else:
+            profile_info['stats']['rating'] = float(raw_rating)
                     
-        # NaN değerleri None yap
+    # NaN değerleri None yap
         for k, v in profile_info.items():
             if pd.isna(v):
                 profile_info[k] = None
+                
+        # Discover sayfasındaki SlideOver ile aynı formata uyum sağlaması için ham verileri de gönder
+        pos_str = str(raw_row.get('Pos', ''))
+        profile_info['raw_stats'] = get_raw_stats(raw_row, pos_str)
+        profile_info['total_stats'] = get_total_stats(raw_row, pos_str)
                 
         return profile_info
     except Exception as e:
@@ -483,53 +495,64 @@ def compare_players(
     target_raw_stats = get_raw_stats(target_row, pos)
     target_total_stats = get_total_stats(target_row, pos)
         
-    # Benzerlikleri hesapla
-    # Sadece filtrelere uyanları (dakika ve istenilen sezon) al
-    filtered_indices = []
-    for idx in df_pca.index:
-        p_id, p_name, t_name, t_id, p_pos, p_season = idx
+    # --- Vektörel Filtreleme (Optimizasyon) ---
+    
+    # 1. Aynı pozisyondaki tüm oyuncuları al
+    df_filter = df_raw[df_raw['Pos'] == pos].copy()
+    
+    # 2. Kendisini (hedef oyuncuyu) çıkar
+    df_filter = df_filter[~((df_filter['player id'] == target_player_id) & (df_filter['season'] == target_season))]
+    
+    # 3. Sezon filtresi
+    if season and season != "All":
+        df_filter = df_filter[df_filter['season'] == season]
         
-        # Kendisini listeleme
-        if p_id == target_player_id and p_season == target_season:
-            continue
-            
-        # Kullanıcı sadece tek bir sezon ile kıyasla dediyse (varsayılan: 25-26)
-        if season and season != "All" and p_season != season:
-            continue
-            
-        # Dakika filtresi (Orijinal tablodan bak)
-        # Optimizasyon: Büyük verilerde bu döngü yavaşlayabilir, ancak 3000 oyuncu için anlık çalışır.
-        raw_row = df_raw[(df_raw['player id'] == p_id) & (df_raw['season'] == p_season)].iloc[0]
-        if raw_row.get('minutesPlayed', 0) < min_minutes:
-            continue
-            
-        # Yaş filtresi
-        player_age = raw_row.get('age')
-        if not pd.isna(player_age) and player_age is not None:
-            if player_age < age_min or player_age > age_max:
-                continue
-                
-        # Market Value filtresi
-        if min_market_value is not None or max_market_value is not None:
-            mv_val = raw_row.get('market_value')
-            if pd.isna(mv_val) or mv_val is None:
-                if not include_unknown_value:
-                    continue
-            else:
-                mv_val = float(mv_val)
-                if min_market_value is not None and mv_val < min_market_value:
-                    continue
-                if max_market_value is not None and mv_val > max_market_value:
-                    continue
-                    
-        filtered_indices.append(idx)
+    # 4. Dakika filtresi
+    df_filter = df_filter[df_filter['minutesPlayed'] >= min_minutes]
+    
+    # 5. Yaş filtresi
+    if age_min is not None:
+        df_filter = df_filter[(df_filter['age'] >= age_min) | df_filter['age'].isna()]
+    if age_max is not None:
+        df_filter = df_filter[(df_filter['age'] <= age_max) | df_filter['age'].isna()]
         
-    if not filtered_indices:
+    # 6. Piyasa değeri filtresi
+    if min_market_value is not None or max_market_value is not None:
+        if not include_unknown_value:
+            df_filter = df_filter[df_filter['market_value'].notna()]
+            if min_market_value is not None:
+                df_filter = df_filter[df_filter['market_value'] >= min_market_value]
+            if max_market_value is not None:
+                df_filter = df_filter[df_filter['market_value'] <= max_market_value]
+        else:
+            mask_unknown = df_filter['market_value'].isna()
+            mask_known = df_filter['market_value'].notna()
+            if min_market_value is not None:
+                mask_known &= (df_filter['market_value'] >= min_market_value)
+            if max_market_value is not None:
+                mask_known &= (df_filter['market_value'] <= max_market_value)
+            df_filter = df_filter[mask_unknown | mask_known]
+            
+    # PCA indeksi ile eşleşmesi için kimlik sütunlarından Tuple oluştur
+    kimlik_sutunlari = ['player id', 'player', 'team', 'team id', 'Pos', 'season']
+    kimlik_mevcut = [c for c in kimlik_sutunlari if c in df_filter.columns]
+    
+    if df_filter.empty:
         return CompareResponse(
             target_player_id=target_player_id, target_player_name=target_name, target_season=target_season, matches=[]
         )
         
-    df_pca_filtered = df_pca.loc[filtered_indices]
+    filtered_tuples = list(df_filter[kimlik_mevcut].itertuples(index=False, name=None))
+    
+    # PCA tablosu ile kesişimini al (sadece var olanları koru)
+    valid_indices = df_pca.index.intersection(filtered_tuples)
+    
+    if valid_indices.empty:
+        return CompareResponse(
+            target_player_id=target_player_id, target_player_name=target_name, target_season=target_season, matches=[]
+        )
+        
+    df_pca_filtered = df_pca.loc[valid_indices]
     
     # Sklearn ile matematiksel işlemler
     cos_sim_matrix = cosine_similarity(target_vector, df_pca_filtered.values)[0]
@@ -544,12 +567,20 @@ def compare_players(
     V_squared = np.square(pca_model.components_)
     feature_names = pt_model.feature_names_in_
     
+    # Optimizasyon: O(1) erişim için filtrelenmiş df_filter'ı MultiIndex'e çevir
+    df_filter_indexed = df_filter.set_index(kimlik_mevcut)
+    
     matches = []
     for i in best_matches_idx:
         match_index = df_pca_filtered.index[i]
         p_id, p_name, t_name, t_id, p_pos, p_season = match_index
         
-        raw_row = df_raw[(df_raw['player id'] == p_id) & (df_raw['season'] == p_season)].iloc[0]
+        # Eski yavaş arama: df_raw[(df_raw['player id'] == p_id)...] yerine çok hızlı direkt erişim
+        raw_row = df_filter_indexed.loc[match_index]
+        
+        # Eğer MultiIndex sebebiyle bir DataFrame dönerse ilk satırı al (normalde tek satır olmalı)
+        if isinstance(raw_row, pd.DataFrame):
+            raw_row = raw_row.iloc[0]
         
         # Benzerlik Vektörü (W) ve Özellik Skorları hesaplama
         match_vector = df_pca_filtered.values[i]

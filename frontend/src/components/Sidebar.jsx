@@ -22,10 +22,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
           </button>
         </div>
-        <div className="pt-space-md pb-space-xs">
-          {/* Removed Intelligence Workspace text */}
+        <div className="pt-space-md pb-space-xs px-4">
+          {/* Removed Spotlight Search Trigger */}
         </div>
-          <nav className="flex flex-col gap-1 px-3 mt-4">
+          <nav className="flex flex-col gap-1 px-3 mt-2">
             <NavLink 
               to="/scout" 
               title="Scout"
