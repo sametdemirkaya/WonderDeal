@@ -59,9 +59,9 @@ const GlobalSearch = () => {
         age: fullProfile.age,
         position_group: fullProfile.position,
         nationality: fullProfile.nationality || 'Unknown',
-        minutes_played: fullProfile.stats?.minutesPlayed || 0,
+        minutes_played: fullProfile.minutes_played || 0,
         height: fullProfile.height,
-        market_value: fullProfile.stats?.market_value,
+        market_value: fullProfile.market_value,
         market_value_currency: fullProfile.market_value_currency || '€',
         raw_stats: fullProfile.raw_stats,
         total_stats: fullProfile.total_stats

@@ -372,6 +372,10 @@ def get_player_stats(player_id: int, season: str):
             'height': float(raw_row.get('height')) if not pd.isna(raw_row.get('height')) else None,
             'foot': str(raw_row.get('foot')) if not pd.isna(raw_row.get('foot')) else None,
             'market_value': float(raw_row.get('market_value')) if not pd.isna(raw_row.get('market_value')) else None,
+            'market_value_currency': str(raw_row.get('market_value_currency')) if 'market_value_currency' in raw_row and not pd.isna(raw_row.get('market_value_currency')) else '€',
+            'contract_until': str(raw_row.get('contract_until')) if 'contract_until' in raw_row and not pd.isna(raw_row.get('contract_until')) else None,
+            'country': str(raw_row.get('country')) if 'country' in raw_row and not pd.isna(raw_row.get('country')) else None,
+            'nationality': str(raw_row.get('country')) if 'country' in raw_row and not pd.isna(raw_row.get('country')) else None,
             'minutes_played': int(raw_row.get('minutesPlayed', 0)),
             'stats': {}
         }
