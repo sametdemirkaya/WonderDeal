@@ -4,25 +4,31 @@ import time
 import random
 import os
 
+# ScraperFC'nin hafızasına yeni ligleri anlık olarak enjekte etme
+ScraperFC.sofascore.comps["Belgium Pro League"] = {"SOFASCORE": 38}
+ScraperFC.sofascore.comps["Poland Ekstraklasa"] = {"SOFASCORE": 202}
+ScraperFC.sofascore.comps["Denmark Superliga"] = {"SOFASCORE": 39}
+ScraperFC.sofascore.comps["Norway Eliteserien"] = {"SOFASCORE": 20}
+ScraperFC.sofascore.comps["Brazil Serie A"] = {"SOFASCORE": 325}
+ScraperFC.sofascore.comps["Czech First League"] = {"SOFASCORE": 172}
+# Arjantin Ligi zaten kütüphanede "Argentina Liga Profesional" (ID: 155) olarak mevcut
+
 def run_scraper():
     print("ScraperFC başlatılıyor... (Çoklu Lig Modu)")
     ss = ScraperFC.Sofascore()
     
     # Hedef Sezon
-    season = "24/25"
+    season = "25/26"
     
-    # Çekilecek Ligler Listesi
-    # Not: ScraperFC kütüphanesinde Türkiye 1. Ligi varsayılan olarak yoktur, 
-    # bu yüzden sadece 5 büyük ligin alt liglerini ekleyebildik.
+    # Yeni eklenen 7 ligin listesi
     leagues = [
-        "England Premier League", "England EFL Championship",
-        "Spain La Liga", "Spain La Liga 2",
-        "Italy Serie A", "Italy Serie B",
-        "Germany Bundesliga", "Germany 2.Bundesliga",
-        "France Ligue 1", "France Ligue 2",
-        "Turkiye Super Lig", 
-        "Portugal Primeira Liga", 
-        "Netherlands Eredivisie"
+        "Belgium Pro League",
+        "Poland Ekstraklasa",
+        "Denmark Superliga",
+        "Norway Eliteserien",
+        "Brazil Serie A",
+        "Czech First League",
+        "Argentina Liga Profesional"
     ]
     
     # Verilerin kaydedileceği klasörü oluşturalım
@@ -31,8 +37,18 @@ def run_scraper():
     
     all_players_list = []
     
+    calendar_leagues = ["Norway Eliteserien", "Brazil Serie A", "Argentina Liga Profesional"]
+    
     for league in leagues:
-        print(f"\n[{league}] - {season} sezonu için veri çekiliyor...")
+        # Kullanıcının kuralı: 24/25 -> 2025, 25/26 -> 2026
+        actual_season = season
+        if league in calendar_leagues:
+            if season == "24/25":
+                actual_season = "2025"
+            elif season == "25/26":
+                actual_season = "2026"
+
+        print(f"\n[{league}] - {actual_season} (Hedef: {season}) sezonu için veri çekiliyor...")
         
         # BAN KORUMASI: Her lig arasında rastgele 10 ila 15 saniye bekle
         sleep_time = random.uniform(10, 15)
@@ -40,7 +56,12 @@ def run_scraper():
         time.sleep(sleep_time)
         
         try:
-            player_data = ss.scrape_player_league_stats(season, league)
+            player_data = ss.scrape_player_league_stats(actual_season, league)
+            
+            # Veriye hangi sezona ait olduğunu ve ligini etiketliyoruz (Hepsi 24/25 veya 25/26 etiketini alacak)
+            player_data['season'] = season 
+            player_data['league_name'] = league
+            
             print(f"BAŞARILI: {league} - {len(player_data)} oyuncu çekildi.")
             
             # Her ligin yedeğini ayrı ayrı kaydedelim (çökme durumunda veri kaybetmemek için)
@@ -57,8 +78,8 @@ def run_scraper():
     # Tüm liglerin birleştirilmesi
     if all_players_list:
         final_df = pd.concat(all_players_list, ignore_index=True)
-        final_df.to_csv(f"all_leagues_combined_{season.replace('/', '-')}.csv", index=False)
-        print(f"\nBİTTİ! Tüm ligler birleştirildi ve 'all_leagues_combined_{season.replace('/', '-')}.csv' olarak kaydedildi.")
+        final_df.to_csv(f"extra_7_leagues_{season.replace('/', '-')}.csv", index=False)
+        print(f"\nBİTTİ! Tüm ligler birleştirildi ve 'extra_7_leagues_{season.replace('/', '-')}.csv' olarak kaydedildi.")
         print(f"Toplam Oyuncu Havuzu: {len(final_df)}")
     else:
         print("\nHiçbir lig verisi çekilemedi.")

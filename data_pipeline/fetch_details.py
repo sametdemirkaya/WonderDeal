@@ -10,11 +10,11 @@ from ScraperFC.utils import botasaurus_browser_get_json
 def run_details_scraper():
     print("Oyuncu Pozisyon ve Yaş (Details) Çekme İşlemi Başlatılıyor (GELİŞMİŞ OYUNCU BAZLI CHECKPOINT)...")
     
-    input_file = "all_leagues_combined_25-26.csv"
+    input_file = "temizlenmis_24_25_SADECE_TOP5_YEDEK.csv"
     output_dir = "scraped_details_data"
     os.makedirs(output_dir, exist_ok=True)
     
-    output_file = os.path.join(output_dir, "details_25_26.csv")
+    output_file = os.path.join(output_dir, "top5_leagues_details_24-25.csv")
     
     if not os.path.exists(input_file):
         print(f"HATA: {input_file} bulunamadı!")
@@ -42,8 +42,8 @@ def run_details_scraper():
     API_PREFIX = "https://api.sofascore.com/api/v1"
     
     batch_count = 0
-    BATCH_LIMIT = 50
-    LONG_SLEEP_MINUTES = 5
+    BATCH_LIMIT = 150
+    LONG_SLEEP_MINUTES = 2.5
 
     count = 0
     for index, row in df_main.iterrows():
@@ -116,8 +116,8 @@ def run_details_scraper():
                 time.sleep(LONG_SLEEP_MINUTES * 60)
                 batch_count = 0
             else:
-                # Her oyuncudan sonra 10-15 saniye arası rastgele çok uzun bekle (Sıfır Risk)
-                time.sleep(random.uniform(9.5, 14.5))
+                # Her oyuncudan sonra 4.5-7.5 saniye arası rastgele bekle
+                time.sleep(random.uniform(3.5, 6.0))
             
         except Exception as e:
             consecutive_errors = locals().get('consecutive_errors', 0) + 1
